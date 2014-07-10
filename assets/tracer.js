@@ -1,8 +1,8 @@
-
 /**
  * Replace window.zone with our stack trace enabled zone
  * This way, it's possible to trace all the way up
  */
+Zone.init();
 window.zone = zone.fork({
   onError: function (e) {
     var reporter = this.reporter || console.log.bind(console);
@@ -49,7 +49,7 @@ function filterStack(stack, removeFirstLine) {
     stackArray.shift();
   }
 
-  var filterRegExp = /(Zone\.)|getStacktraceWithUncaughtError|zoneBoundFn|zoneBoundOnceFn|window\.zone/;
+  var filterRegExp = /\/packages\/zones\/assets\//;
   return stackArray.filter(function(line) {
     return !line.match(filterRegExp);
   }).join('\n');
