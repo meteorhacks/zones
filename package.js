@@ -4,15 +4,17 @@ Package.describe({
 
 Package.on_use(function (api) {
   api.add_files([
-    'assets/zone.js',
     'assets/utils.js',
+    'assets/zone.js',
     'assets/tracer.js',
   ], 'client', {isAsset: true});
 
   api.add_files(['server/inject.js'], 'server');
 
-  api.add_files(['client/hijack.js'], 'client');
+  api.add_files([
+    'client/hijack.js'
+  ], 'client');
 
-  api.use('livedata', 'client');
+  api.use(['livedata', 'mongo-livedata'], 'client');
   api.use('inject-initial');
 });
