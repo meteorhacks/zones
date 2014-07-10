@@ -14,5 +14,6 @@ Package.on_use(function (api) {
     'client/hijack/method_calls.js'
   ], 'client');
 
+  api.use('livedata', 'client');
   api.use('inject-initial');
 });
