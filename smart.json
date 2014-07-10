@@ -1,0 +1,9 @@
+{
+  "name": "meteor-zone",
+  "description": "Zone.js integration for meteor",
+  "homepage": "https://github.com/meteorhacks/meteor-zone",
+  "author": "MeteorHacks",
+  "version": "0.0.0",
+  "git": "https://github.com/meteorhacks/meteor-zone.git",
+  "packages": {}
+}
