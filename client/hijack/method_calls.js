@@ -16,10 +16,3 @@ ConnectionProto.apply = function (name, args, options, callback) {
     originalFunction.call(this, name, args, options, callback);
   }
 }
-
-function getConnectionProto () {
-  var con = DDP.connect(window.location.origin);
-  con.disconnect();
-  var proto = con.constructor.prototype;
-  return proto;
-}
