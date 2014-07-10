@@ -1,17 +1,25 @@
 
-/**
- * Hijack Meteor.call
- * Replace given callback function with a zoned version
- */
+var ConnectionProto = getConnectionProto();
+var originalFunction = ConnectionProto.apply;
 
-var original_Meteor_call = Meteor.call;
-
-Meteor.call = function() {
-  var args = Array.prototype.slice.call(arguments);
-  var callback = args[args.length - 1];
+ConnectionProto.apply = function (name, args, options, callback) {
   if(typeof callback === 'function') {
-    var zonedCallback = zone.bind(callback);
-    args[args.length - 1] = zonedCallback;
-  };
-  return original_Meteor_call.apply(this, args);
-};
+    callback = zone.bind(callback);
+    originalFunction.call(this, name, args, options, callback);
+  } else if(!callback && typeof options === 'function') {
+    // 3 arguments (name, args, callback)
+    callback = zone.bind(options);
+    originalFunction.call(this, name, args, callback);
+  } else {
+    // 3 arguments (name, args, options)
+    callback = zone.bind(Function());
+    originalFunction.call(this, name, args, options, callback);
+  }
+}
+
+function getConnectionProto () {
+  var con = DDP.connect(window.location.origin);
+  con.disconnect();
+  var proto = con.constructor.prototype;
+  return proto;
+}
