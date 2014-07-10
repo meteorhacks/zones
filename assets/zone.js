@@ -613,3 +613,5 @@ Zone.init = function init () {
   }
   Zone.patch();
 };
+
+Zone.init();

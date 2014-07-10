@@ -2,7 +2,6 @@
  * Replace window.zone with our stack trace enabled zone
  * This way, it's possible to trace all the way up
  */
-Zone.init();
 window.zone = zone.fork({
   onError: function (e) {
     var reporter = this.reporter || console.log.bind(console);
