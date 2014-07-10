@@ -29,3 +29,19 @@ function hijackSubscribe(originalFunction) {
     }
   }
 }
+
+function hijackCursor(original) {
+  return function (options) {
+    if(options) {
+      [
+        'added', 'addedAt', 'changed', 'changedAt',
+        'removed', 'removedAt', 'movedTo'
+      ].forEach(function (funName) {
+        if(typeof options[funName] === 'function') {
+          options[funName] = zone.bind(options[funName]);
+        };
+      });
+    }
+    original.call(this, options);
+  };
+}
