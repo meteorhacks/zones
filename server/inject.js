@@ -1,8 +1,8 @@
 
 var scripts = [
-  '/packages/zone/assets/zone.js',
-  '/packages/zone/assets/utils.js',
-  '/packages/zone/assets/tracer.js'
+  '/packages/zones/assets/utils.js',
+  '/packages/zones/assets/zone.js',
+  '/packages/zones/assets/tracer.js'
 ];
 
 var html = "";
@@ -10,4 +10,4 @@ scripts.forEach(function(script) {
   html+= '<script src="' + script + '" type="text/javascript"></script>';
 });
 
-Package['inject-initial'].Inject.rawHead("zone", html);
+Package['inject-initial'].Inject.rawHead("zones", html);
