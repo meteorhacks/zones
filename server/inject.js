@@ -1,4 +1,6 @@
+
 var scripts = [
+  '/packages/zones/assets/utils.js',
   '/packages/zones/assets/zone.js',
   '/packages/zones/assets/tracer.js'
 ];
