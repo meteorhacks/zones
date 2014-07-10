@@ -67,7 +67,7 @@ Zone.prototype = {
 
   bindOnce: function (fn) {
     var boundZone = this;
-    return this.bind(function () {
+    return this.bind(function zoneBoundOnceFn() {
       var result = fn.apply(this, arguments);
       boundZone.dequeueTask(fn);
       return result;
