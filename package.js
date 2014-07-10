@@ -12,7 +12,8 @@ Package.on_use(function (api) {
   api.add_files(['server/inject.js'], 'server');
 
   api.add_files([
-    'client/hijack/method_calls.js'
+    'client/hijack/method_calls.js',
+    'client/hijack/subscriptions.js',
   ], 'client');
 
   api.use('livedata', 'client');
