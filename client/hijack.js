@@ -59,3 +59,16 @@ Meteor.subscribe = function () {
     original_Meteor_subscribe.apply(this, args);
   }
 }
+
+var original_Cursor_observe = LocalCollection.Cursor.prototype.observe;
+LocalCollection.Cursor.prototype.observe = function (options) {
+  if(options) {
+    ['added', 'addedAt', 'changed', 'changedAt', 'removed', 'removedAt', 'movedTo'].forEach(function (funName) {
+      if(typeof options[funName] === 'function') {
+        options[funName] = zone.bind(options[funName]);
+      };
+    });
+  }
+  original_Cursor_observe.call(this, options);
+}
+
