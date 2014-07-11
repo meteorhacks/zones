@@ -5,9 +5,9 @@ function hijackConnection(original) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
         args[args.length - 1] = zone.bind(callback);
-        original.apply(this, args);
       }
     }
+    return original.apply(this, args);
   }
 }
 
@@ -25,8 +25,8 @@ function hijackSubscribe(originalFunction) {
           }
         })
       }
-      originalFunction.apply(this, args);
     }
+    return originalFunction.apply(this, args);
   }
 }
 
@@ -42,6 +42,6 @@ function hijackCursor(original) {
         };
       });
     }
-    original.call(this, options);
+    return original.call(this, options);
   };
 }

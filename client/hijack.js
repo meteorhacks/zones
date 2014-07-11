@@ -28,7 +28,6 @@ Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe);
 var original_Cursor_observe = LocalCollection.Cursor.prototype.observe;
 LocalCollection.Cursor.prototype.observe = hijackCursor(original_Cursor_observe);
 
-
 function getConnectionProto() {
   var con = DDP.connect(window.location.origin);
   con.disconnect();
