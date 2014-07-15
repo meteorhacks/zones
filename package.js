@@ -1,5 +1,5 @@
 Package.describe({
-  summary: 'Zone.js integration for meteor'
+  summary: 'Zone.Js integration for meteor'
 });
 
 Package.on_use(function (api) {
