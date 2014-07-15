@@ -48,7 +48,6 @@ function hijackCursor(original) {
 
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
-  console.log('* arguments', arguments);
   if(obj && Array.isArray(methodNames)) {
     var backup = {obj: obj};
     backup.methods = {};
