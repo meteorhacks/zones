@@ -2,10 +2,14 @@
  * Replace window.zone with our stack trace enabled zone
  * This way, it's possible to trace all the way up
  */
+
 window.zone = zone.fork({
   onError: function (e) {
-    var reporter = this.reporter || console.log.bind(console);
-    reporter(e.toString(), buildStacktrace(this, e));
+    var zone = this.fork();
+    zone.currentStack = new Stacktrace(e);
+    zone.reporters.forEach(function (reporter) {
+      reporter(zone);
+    });
   },
 
   fork: function (locals) {
@@ -22,37 +26,7 @@ window.zone = zone.fork({
   _fork: zone.fork
 });
 
-function buildStacktrace (zone, exception) {
-  var trace = [];
-  var exception = new Stacktrace(exception);
-  trace.push(filterStack(exception.get()));
-
-  var currZone = zone;
-  var totalAsyncTime = 0;
-  while (currZone && currZone.currentStack) {
-    var asyncTime = currZone.runAt - currZone.createdAt;
-    if(asyncTime) {
-      totalAsyncTime += asyncTime;
-      trace.push('\n> Before: ' + totalAsyncTime + 'ms (diff: ' + asyncTime + 'ms)');
-    }
-
-    trace.push(filterStack(currZone.currentStack.get(), true));
-    currZone = currZone.parent;
-  }
-  return trace.join('\n');
-}
-
-function filterStack(stack, removeFirstLine) {
-  var stackArray = stack.split('\n');
-  if(removeFirstLine) {
-    stackArray.shift();
-  }
-
-  var filterRegExp = /\/packages\/zones\/assets\//;
-  return stackArray.filter(function(line) {
-    return !line.match(filterRegExp);
-  }).join('\n');
-}
+window.zone.reporters = [Zone.reporters._default];
 
 /**
  * Create a stack trace
