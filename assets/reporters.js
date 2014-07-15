@@ -29,7 +29,7 @@ Zone.Reporters.run = function(zone) {
  * Register default reporter
  */
 
-Zone.Reporters.add('longStackTrace', function (zone) {
+Zone.Reporters.longStackTrace = function (zone) {
   var trace = [];
   var currZone = zone;
   var totalAsyncTime = 0;
@@ -45,4 +45,6 @@ Zone.Reporters.add('longStackTrace', function (zone) {
   }
 
   console.log(trace.join('\n'));
-});
+}
+
+Zone.Reporters.add('longStackTrace', Zone.Reporters.longStackTrace);
