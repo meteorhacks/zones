@@ -7,9 +7,7 @@ window.zone = zone.fork({
   onError: function (e) {
     var zone = this.fork();
     zone.currentStack = new Stacktrace(e);
-    zone.reporters.forEach(function (reporter) {
-      reporter(zone);
-    });
+    Zone.Reporters.run(zone);
   },
 
   fork: function (locals) {
@@ -25,8 +23,6 @@ window.zone = zone.fork({
 
   _fork: zone.fork
 });
-
-window.zone.reporters = [Zone.reporters._default];
 
 /**
  * Create a stack trace

@@ -1,38 +1,56 @@
 
-Zone.reporters = {};
+var reporters = {};
 
-Zone.reporters._default = function (zone) {
-  throw zone.currentStack._e;
-}
+Zone.Reporters = {};
 
-Zone.reporters.longStackTrace = function (zone) {
-  console.log(buildStack(zone).map(formatStack).join('\n'));
-
-  function formatStack (stack) {
-    var timeStr = '\n> Before: ' + stack.total + 'ms (diff: ' + stack.diff + 'ms)';
-    return (stack.diff ? timeStr : '') + '\n' + stack.stack;
-  }
-}
-
-function buildStack (zone) {
-  var trace = [];
-  var total = 0;
-  while (zone && zone.currentStack) {
-    var diff = zone.runAt - zone.createdAt;
-    var stack = filterStack(zone.currentStack.get());
-    diff = (diff > 0) ? diff : 0;
-    total += diff;
-    zone = zone.parent;
-    trace.push({stack: stack, total: total, diff: diff});
-  }
-
-  return trace;
-}
-
-function filterStack(stack) {
-  var stackArray = stack.split('\n');
-  var filterRegExp = /\/packages\/zones\/assets\//;
-  return stackArray.filter(function(line) {
-    return !line.match(filterRegExp);
-  }).join('\n');
+Zone.Reporters.get = function(name) {
+  return name ? reporters[name] : reporters;
 };
+
+Zone.Reporters.add = function(name, reporter) {
+  reporters[name] = reporter;
+};
+
+Zone.Reporters.remove = function(name) {
+  delete reporters[name];
+};
+
+Zone.Reporters.removeAll = function(name) {
+  reporters = {};
+};
+
+Zone.Reporters.run = function(zone) {
+  for(var name in reporters) {
+    reporters[name](zone);
+  }
+};
+
+/*
+ * Register default reporter
+ */
+
+Zone.Reporters.add('longStackTrace', function (zone) {
+  var trace = [];
+  var currZone = zone;
+  var totalAsyncTime = 0;
+  while (currZone && currZone.currentStack) {
+    var asyncTime = currZone.runAt - currZone.createdAt;
+    if(asyncTime && asyncTime > 0) {
+      totalAsyncTime += asyncTime;
+      trace.push('\n> Before: ' + totalAsyncTime + 'ms (diff: ' + asyncTime + 'ms)');
+    }
+
+    trace.push(filterStack(currZone.currentStack.get(), true));
+    currZone = currZone.parent;
+  }
+
+  console.log(trace.join('\n'));
+
+  function filterStack(stack) {
+    var stackArray = stack.split('\n');
+    var filterRegExp = /\/packages\/zones\/assets\//;
+    return stackArray.filter(function(line) {
+      return !line.match(filterRegExp);
+    }).join('\n');
+  }
+});
