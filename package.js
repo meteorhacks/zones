@@ -8,6 +8,7 @@ Package.on_use(function (api) {
     'assets/before.js',
     'assets/zone.js',
     'assets/after.js',
+    'assets/reporters.js',
     'assets/tracer.js',
   ], 'client', {isAsset: true});
 
