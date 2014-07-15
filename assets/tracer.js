@@ -70,6 +70,6 @@ Stacktrace.prototype.get = function() {
 };
 
 Stacktrace.prototype.stackFramesFilter = function(line) {
-  var filterRegExp = /\/packages\/zones\/assets\//;
+  var filterRegExp = /\/packages\/zones\/assets\/|^Error$/;
   return !line.match(filterRegExp);
 };
