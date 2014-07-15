@@ -45,3 +45,24 @@ function hijackCursor(original) {
     return original.call(this, options);
   };
 }
+
+var originalFunctions = [];
+function backupOriginals(obj, methodNames) {
+  console.log('* arguments', arguments);
+  if(obj && Array.isArray(methodNames)) {
+    var backup = {obj: obj};
+    backup.methods = {};
+    methodNames.forEach(function (name) {
+      backup.methods[name] = obj[name];
+    });
+    originalFunctions.push(backup);
+  };
+}
+
+function restoreOriginals() {
+  originalFunctions.forEach(function (backup) {
+    for(var name in backup.methods) {
+      backup.obj[name] = backup.methods[name];
+    };
+  });
+}
