@@ -5,7 +5,9 @@ Package.describe({
 Package.on_use(function (api) {
   api.add_files([
     'assets/utils.js',
+    'assets/before.js',
     'assets/zone.js',
+    'assets/after.js',
     'assets/tracer.js',
   ], 'client', {isAsset: true});
 
