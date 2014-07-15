@@ -70,5 +70,6 @@ Stacktrace.prototype.get = function() {
 };
 
 Stacktrace.prototype.stackFramesFilter = function(line) {
-  return line.indexOf('zone.js') === -1;
+  var filterRegExp = /\/packages\/zones\/assets\//;
+  return !line.match(filterRegExp);
 };

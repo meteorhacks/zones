@@ -40,17 +40,9 @@ Zone.Reporters.add('longStackTrace', function (zone) {
       trace.push('\n> Before: ' + totalAsyncTime + 'ms (diff: ' + asyncTime + 'ms)');
     }
 
-    trace.push(filterStack(currZone.currentStack.get(), true));
+    trace.push(currZone.currentStack.get());
     currZone = currZone.parent;
   }
 
   console.log(trace.join('\n'));
-
-  function filterStack(stack) {
-    var stackArray = stack.split('\n');
-    var filterRegExp = /\/packages\/zones\/assets\//;
-    return stackArray.filter(function(line) {
-      return !line.match(filterRegExp);
-    }).join('\n');
-  }
 });
