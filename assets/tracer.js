@@ -5,8 +5,7 @@
 
 window.zone = zone.fork({
   onError: function (e) {
-    var zone = this.fork();
-    zone.currentStack = new Stacktrace(e);
+    zone.erroredStack = new Stacktrace(e);
     Zone.Reporters.run(zone);
   },
 
@@ -19,6 +18,10 @@ window.zone = zone.fork({
 
   beforeTask: function() {
     zone.runAt = Date.now();
+  },
+
+  afterTask: function() {
+
   },
 
   _fork: zone.fork
