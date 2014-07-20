@@ -25,6 +25,9 @@ window.zone = zone.fork({
     // but we are deleting eventMap just after zone ran
     // so, we need to create eventMap explicitely to stay it in the current zone
     zone.eventMap = zone.eventMap;
+
+    // make sure owner doesn't get inherited
+    zone.owner = undefined;
     return zone;
   },
 
@@ -47,6 +50,13 @@ window.zone = zone.fork({
     // top of the stack
     zone._events = [];
     zone.eventMap[zone.id] = zone._events;
+
+    // if there is _ownerArgs we need to add it as an event
+    // after that we don't need to _ownerArgs
+    if(zone._ownerArgs) {
+      zone.addEvent({type: "owner-args", args: zone._ownerArgs, at: Date.now()});
+      delete zone._ownerArgs;
+    }
   },
 
   afterTask: function() {
@@ -64,6 +74,18 @@ window.zone = zone.fork({
     if(zone._events) {
       zone._events.push(event);
     }
+  },
+
+  // we can add it the zone direcly, because zone can be run many times
+  // we can't add this as a event yet, since zone doesn't started yet
+  // so we'll add this to a special fields and it's will added to the _events
+  // when _events will be creating
+  setOwnerArgs: function(args) {
+    this._ownerArgs = args;
+  },
+
+  setOwner: function(ownerInfo) {
+    this.owner = ownerInfo;
   },
 
   _fork: zone.fork
