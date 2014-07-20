@@ -22,34 +22,38 @@ window.zone = zone.fork({
 
     // when creating a new zone, it will use's parent zone as __proto__
     // that's why we can access ancesstor properties
-    // but we are deleting _eventMap just after zone ran
-    // so, we need to create _eventMap explicitely to stay it in the current zone
-    zone._eventMap = zone._eventMap;
+    // but we are deleting eventMap just after zone ran
+    // so, we need to create eventMap explicitely to stay it in the current zone
+    zone.eventMap = zone.eventMap;
     return zone;
   },
 
   beforeTask: function() {
     zone.runAt = Date.now();
 
-    // create _eventMap for the first time
+    // create eventMap for the first time
     // eventMap will be deleted just after zone completed
     // but it will be available only in the errroed zone
     // so, in that zone, someone can access all the events happened on the
     // async call stack
-    if(!zone._eventMap) {
-      zone._eventMap = {};
+    if(!zone.eventMap) {
+      zone.eventMap = {};
     }
 
     // _events will only be available during the zone running time only
+    // an event can be run multiple times. So we can't maintain the events
+    // in this array forever.
+    // best option is to add it to eventMap, which carries events to the
+    // top of the stack
     zone._events = [];
-    zone._eventMap[zone.id] = zone._events;
+    zone.eventMap[zone.id] = zone._events;
   },
 
   afterTask: function() {
     delete zone._events;
-    // we only keep _eventMap in the errored zone only
+    // we only keep eventMap in the errored zone only
     if(!zone.erroredStack) {
-      delete this._eventMap;
+      delete this.eventMap;
     }
   },
 
