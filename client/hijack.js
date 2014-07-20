@@ -34,3 +34,12 @@ function getConnectionProto() {
   var proto = con.constructor.prototype;
   return proto;
 }
+
+// we've a better error handling support with zones
+// Meteor._debug will prevent it (specially inside deps)
+// So we are killing Meteor._debug
+Meteor._debug = function(message, stack) {
+  var err = new Error();
+  err.stack = stack;
+  throw err;
+};
