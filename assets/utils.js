@@ -4,7 +4,7 @@ function hijackConnection(original, type) {
     if(args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
-        args[args.length - 1] = bindWithOwnerInfo(callback, {type: type});
+        args[args.length - 1] = zone.bind(callback, false, {type: type});
       }
     }
     return original.apply(this, args);
@@ -18,12 +18,12 @@ function hijackSubscribe(originalFunction, type) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
         var ownerInfo = {type: type}
-        args[args.length - 1] = bindWithOwnerInfo(callback, ownerInfo);
+        args[args.length - 1] = zone.bind(callback, false, ownerInfo);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
           if(typeof callback[funName] === "function") {
             var ownerInfo = {type: type, callbackType: funName};
-            callback[funName] = bindWithOwnerInfo(callback[funName], ownerInfo);
+            callback[funName] = zone.bind(callback[funName], false, ownerInfo);
           }
         })
       }
@@ -32,22 +32,38 @@ function hijackSubscribe(originalFunction, type) {
   }
 }
 
-function hijackCursor(original, type) {
-  return function (options) {
-    var self = this;
-    if(options) {
-      [
-        'added', 'addedAt', 'changed', 'changedAt',
-        'removed', 'removedAt', 'movedTo'
-      ].forEach(function (funName) {
-        var ownerInfo = {type: type, callbackType: funName};
-        if(typeof options[funName] === 'function') {
-          options[funName] = bindWithOwnerInfo(options[funName], ownerInfo);
-        }
-      });
-    }
-    return original.call(this, options);
-  };
+function hijackCursor(Cursor) {
+
+  hijackFunction('observe', [
+    'added', 'addedAt', 'changed', 'changedAt',
+    'removed', 'removedAt', 'movedTo'
+  ]);
+
+  hijackFunction('observeChanges', [
+    'added', 'addedBefore', 'changed',
+    'removed', 'movedBefore'
+  ]);
+
+  function hijackFunction(type, callbacks) {
+    var original = Cursor[type];
+    Cursor[type] = function (options) {
+      var self = this;
+      if(options) {
+        callbacks.forEach(function (funName) {
+          var ownerInfo = {
+            type: 'MongoCursor.' + type,
+            callbackType: funName,
+            collection: self.collection.name
+          };
+
+          if(typeof options[funName] === 'function') {
+            options[funName] = zone.bind(options[funName], false, ownerInfo);
+          }
+        });
+      }
+      return original.call(this, options);
+    };
+  }
 }
 
 var originalFunctions = [];
@@ -68,14 +84,4 @@ function restoreOriginals() {
       backup.obj[name] = backup.methods[name];
     };
   });
-}
-
-function bindWithOwnerInfo(func, ownerInfo) {
-  var zone = window.zone.fork();
-  zone.setOwner(ownerInfo);
-
-  return function zoneBoundFn() {
-    zone.setOwnerArgs(arguments);
-    return zone.run(func, this, arguments);
-  };
 }

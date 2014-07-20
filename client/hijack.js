@@ -1,4 +1,3 @@
-
 var ConnectionProto = getConnectionProto();
 
 /*
@@ -25,8 +24,7 @@ ConnectionProto.subscribe = hijackSubscribe(original_Connection_subscribe, 'Conn
 var original_Meteor_subscribe = Meteor.subscribe;
 Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe, 'Meteor.subscribe');
 
-var original_Cursor_observe = LocalCollection.Cursor.prototype.observe;
-LocalCollection.Cursor.prototype.observe = hijackCursor(original_Cursor_observe, "MongoCollection.observe");
+hijackCursor(LocalCollection.Cursor.prototype);
 
 function getConnectionProto() {
   var con = DDP.connect(window.location.origin);

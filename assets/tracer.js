@@ -1,17 +1,24 @@
-var zoneIds = 0;
-function nextZoneId() {
-  return ++zoneIds;
-}
+nextZoneId = function() {
+  var zoneIds = 0;
+  return function () {
+    return zoneIds++;
+  };
+}();
 
-/**
- * Replace window.zone with our stack trace enabled zone
- * This way, it's possible to trace all the way up
- */
+extendZone = function(fields) {
+  for(var key in fields) {
+    Zone.prototype[key] = fields[key];
+  }
+};
 
-window.zone = zone.fork({
+// extendZone with our own functionality
+
+extendZone({
+  _fork: Zone.prototype.fork,
+
   onError: function (e) {
-    zone.erroredStack = new Stacktrace(e);
-    Zone.Reporters.run(zone);
+    this.erroredStack = new Stacktrace(e);
+    Zone.Reporters.run(this);
   },
 
   fork: function (locals) {
@@ -32,15 +39,15 @@ window.zone = zone.fork({
   },
 
   beforeTask: function() {
-    zone.runAt = Date.now();
+    this.runAt = Date.now();
 
     // create eventMap for the first time
     // eventMap will be deleted just after zone completed
     // but it will be available only in the errroed zone
     // so, in that zone, someone can access all the events happened on the
     // async call stack
-    if(!zone.eventMap) {
-      zone.eventMap = {};
+    if(!this.eventMap) {
+      this.eventMap = {};
     }
 
     // _events will only be available during the zone running time only
@@ -48,21 +55,21 @@ window.zone = zone.fork({
     // in this array forever.
     // best option is to add it to eventMap, which carries events to the
     // top of the stack
-    zone._events = [];
-    zone.eventMap[zone.id] = zone._events;
+    this._events = [];
+    this.eventMap[this.id] = this._events;
 
     // if there is _ownerArgs we need to add it as an event
     // after that we don't need to _ownerArgs
-    if(zone._ownerArgs) {
-      zone.addEvent({type: "owner-args", args: zone._ownerArgs, at: Date.now()});
-      delete zone._ownerArgs;
+    if(this._ownerArgs) {
+      this.addEvent({type: "owner-args", args: this._ownerArgs, at: Date.now()});
+      delete this._ownerArgs;
     }
   },
 
   afterTask: function() {
-    delete zone._events;
+    delete this._events;
     // we only keep eventMap in the errored zone only
-    if(!zone.erroredStack) {
+    if(!this.erroredStack) {
       delete this.eventMap;
     }
   },
@@ -71,8 +78,8 @@ window.zone = zone.fork({
     // when zone completed _events will be removed
     // but actions may happen even after the zone completed
     // and we are not interested about those
-    if(zone._events) {
-      zone._events.push(event);
+    if(this._events) {
+      this._events.push(event);
     }
   },
 
@@ -88,7 +95,32 @@ window.zone = zone.fork({
     this.owner = ownerInfo;
   },
 
-  _fork: zone.fork
+  bind: function (func, skipEnqueue, ownerInfo) {
+    skipEnqueue || this.enqueueTask(func);
+    var zone = this.fork();
+
+    if(ownerInfo) {
+      zone.setOwner(ownerInfo);
+      ownerInfo.zoneId = zone.id;
+      this.addEvent(ownerInfo);
+    }
+
+    return function zoneBoundFn() {
+      if(ownerInfo) {
+        zone.setOwnerArgs(arguments);
+      }
+      return zone.run(func, this, arguments);
+    };
+  },
+
+  bindOnce: function (func, ownerInfo) {
+    var boundZone = this;
+    return this.bind(function() {
+      var result = func.apply(this, arguments);
+      boundZone.dequeueTask(func);
+      return result;
+    }, false, ownerInfo);
+  }
 });
 
 /**

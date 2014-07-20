@@ -1,2 +1,2 @@
-
+Zone.init();
 restoreOriginals();

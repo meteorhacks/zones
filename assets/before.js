@@ -1,4 +1,3 @@
-
 backupOriginals(window, [
   'requestAnimationFrame',
   'mozRequestAnimationFrame',

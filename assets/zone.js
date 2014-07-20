@@ -1,5 +1,15 @@
 'use strict';
 
+// Based on https://github.com/angular/zone.js/commit/74947b6f509bc7272fc3d2de562dbd8e981b00a1
+//
+// Changes from original
+//  * Zone.bindArgumentsOnce now accepts a second param called ownerInfo
+//      it will be passed as zone.bind(fn, false, ownerInfo)
+//  * In most of the patchs, ownerInfo has been generated to get some info
+//      about the zone and which created it
+//  * In some places zone.bind has been called with zone.bind(fn, false, ownerInfo)
+//  * Zone.init() has been removed from this script to support extending
+//      zones via some other script
 
 function Zone(parentZone, data) {
   var zone = (arguments.length) ? Object.create(parentZone) : this;
@@ -67,7 +77,7 @@ Zone.prototype = {
 
   bindOnce: function (fn) {
     var boundZone = this;
-    return this.bind(function zoneBoundOnceFn() {
+    return this.bind(function () {
       var result = fn.apply(this, arguments);
       boundZone.dequeueTask(fn);
       return result;
@@ -125,7 +135,8 @@ Zone.patchSetClearFn = function (obj, fnNames) {
             delete ids[id];
             return fn.apply(this, arguments);
           };
-          var args = Zone.bindArguments(arguments);
+          var ownerInfo = {type: setName, timeout: arguments[1]};
+          var args = Zone.bindArguments(arguments, ownerInfo);
           id = delegate.apply(obj, args);
           ids[id] = true;
           return id;
@@ -137,7 +148,8 @@ Zone.patchSetClearFn = function (obj, fnNames) {
             delete ids[id];
             return fn.apply(this, arguments);
           };
-          var args = Zone.bindArgumentsOnce(arguments);
+          var ownerInfo = {type: setName, timeout: arguments[1]};
+          var args = Zone.bindArgumentsOnce(arguments, ownerInfo);
           id = delegate.apply(obj, args);
           ids[id] = true;
           return id;
@@ -187,31 +199,32 @@ Zone.patchSetFn = function (obj, fnNames) {
   });
 };
 
-Zone.patchPrototype = function (obj, fnNames) {
+Zone.patchPrototype = function (obj, fnNames, kind) {
   fnNames.forEach(function (name) {
     var delegate = obj[name];
     if (delegate) {
       obj[name] = function () {
-        return delegate.apply(this, Zone.bindArguments(arguments));
+        var ownerInfo = {type: kind + "." + name};
+        return delegate.apply(this, Zone.bindArguments(arguments, ownerInfo));
       };
     }
   });
 };
 
-Zone.bindArguments = function (args) {
+Zone.bindArguments = function (args, ownerInfo) {
   for (var i = args.length - 1; i >= 0; i--) {
     if (typeof args[i] === 'function') {
-      args[i] = zone.bind(args[i]);
+      args[i] = zone.bind(args[i], false, ownerInfo);
     }
   }
   return args;
 };
 
 
-Zone.bindArgumentsOnce = function (args) {
+Zone.bindArgumentsOnce = function (args, ownerInfo) {
   for (var i = args.length - 1; i >= 0; i--) {
     if (typeof args[i] === 'function') {
-      args[i] = zone.bindOnce(args[i]);
+      args[i] = zone.bindOnce(args[i], ownerInfo);
     }
   }
   return args;
@@ -285,10 +298,11 @@ Zone.patchProperties = function (obj, properties) {
     });
 };
 
-Zone.patchEventTargetMethods = function (obj) {
+Zone.patchEventTargetMethods = function (obj, thing) {
   var addDelegate = obj.addEventListener;
   obj.addEventListener = function (eventName, fn) {
-    arguments[1] = fn._bound = zone.bind(fn);
+    var ownerInfo = {type: thing + ".addEventListener", event: eventName};
+    arguments[1] = fn._bound = zone.bind(fn, false, ownerInfo);
     return addDelegate.apply(this, arguments);
   };
 
@@ -318,7 +332,7 @@ Zone.patch = function patch () {
 
   // patched properties depend on addEventListener, so this needs to come first
   if (window.EventTarget) {
-    Zone.patchEventTargetMethods(window.EventTarget.prototype);
+    Zone.patchEventTargetMethods(window.EventTarget.prototype, 'EventTarget');
 
   // Note: EventTarget is not available in all browsers,
   // if it's not available, we instead patch the APIs in the IDL that inherit from EventTarget
@@ -347,9 +361,14 @@ Zone.patch = function patch () {
       return window[thing];
     }).
     map(function (thing) {
-      return window[thing].prototype;
+      return {
+        thing: thing,
+        prototype: window[thing].prototype
+      };
     }).
-    forEach(Zone.patchEventTargetMethods);
+    forEach(function(info) {
+      Zone.patchEventTargetMethods(prototype, thing);
+    });
   }
 
   if (Zone.canPatchViaPropertyDescriptor()) {
@@ -364,7 +383,7 @@ Zone.patch = function patch () {
     Zone.patchPrototype(Promise.prototype, [
       'then',
       'catch'
-    ]);
+    ], 'promise');
   }
   Zone.patchMutationObserverClass('MutationObserver');
   Zone.patchMutationObserverClass('WebKitMutationObserver');
@@ -403,7 +422,8 @@ Zone.patchViaCapturingAllTheEvents = function () {
       var elt = event.target, bound;
       while (elt) {
         if (elt[onproperty] && !elt[onproperty]._unbound) {
-          bound = zone.bind(elt[onproperty]);
+          var ownerInfo = {type: "document.on" + property};
+          bound = zone.bind(elt[onproperty], false, ownerInfo);
           bound._unbound = elt[onproperty];
           elt[onproperty] = bound;
         }
@@ -613,5 +633,3 @@ Zone.init = function init () {
   }
   Zone.patch();
 };
-
-Zone.init();
