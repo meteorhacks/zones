@@ -98,7 +98,7 @@ extendZone({
   // validate and pick arguments
   // we don't need to capture event object as the argument
   // (then we can't to JSON stringify)
-  // That's why we've this 
+  // That's why we've this
   bind: function (func, skipEnqueue, ownerInfo, validateArgs) {
     validateArgs = validateArgs || function() {return []};
     skipEnqueue || this.enqueueTask(func);
@@ -167,10 +167,14 @@ function Stacktrace (e) {
 }
 
 Stacktrace.prototype.get = function() {
-  return this._e.stack
-    .split('\n')
-    .filter(this.stackFramesFilter)
-    .join('\n');
+  if(this._e && typeof this._e.stack == 'string') {
+    return this._e.stack
+      .split('\n')
+      .filter(this.stackFramesFilter)
+      .join('\n');
+  } else {
+    return "";
+  }
 };
 
 Stacktrace.prototype.stackFramesFilter = function(line) {
