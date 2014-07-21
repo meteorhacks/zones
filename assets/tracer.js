@@ -95,7 +95,12 @@ extendZone({
     this.owner = ownerInfo;
   },
 
-  bind: function (func, skipEnqueue, ownerInfo) {
+  // validate and pick arguments
+  // we don't need to capture event object as the argument
+  // (then we can't to JSON stringify)
+  // That's why we've this 
+  bind: function (func, skipEnqueue, ownerInfo, validateArgs) {
+    validateArgs = validateArgs || function() {return []};
     skipEnqueue || this.enqueueTask(func);
     var zone = this.fork();
 
@@ -107,19 +112,19 @@ extendZone({
 
     return function zoneBoundFn() {
       if(ownerInfo) {
-        zone.setOwnerArgs(arguments);
+        zone.setOwnerArgs(validateArgs(this, arguments));
       }
       return zone.run(func, this, arguments);
     };
   },
 
-  bindOnce: function (func, ownerInfo) {
+  bindOnce: function (func, ownerInfo, validateArgs) {
     var boundZone = this;
     return this.bind(function() {
       var result = func.apply(this, arguments);
       boundZone.dequeueTask(func);
       return result;
-    }, false, ownerInfo);
+    }, false, ownerInfo, validateArgs);
   }
 });
 

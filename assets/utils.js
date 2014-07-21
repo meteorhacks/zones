@@ -4,7 +4,7 @@ function hijackConnection(original, type) {
     if(args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
-        args[args.length - 1] = zone.bind(callback, false, {type: type});
+        args[args.length - 1] = zone.bind(callback, false, {type: type}, pickAllArgs);
       }
     }
     return original.apply(this, args);
@@ -18,12 +18,12 @@ function hijackSubscribe(originalFunction, type) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
         var ownerInfo = {type: type}
-        args[args.length - 1] = zone.bind(callback, false, ownerInfo);
+        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
           if(typeof callback[funName] === "function") {
             var ownerInfo = {type: type, callbackType: funName};
-            callback[funName] = zone.bind(callback[funName], false, ownerInfo);
+            callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
         })
       }
@@ -57,7 +57,7 @@ function hijackCursor(Cursor) {
           };
 
           if(typeof options[funName] === 'function') {
-            options[funName] = zone.bind(options[funName], false, ownerInfo);
+            options[funName] = zone.bind(options[funName], false, ownerInfo, pickAllArgs);
           }
         });
       }
@@ -84,4 +84,8 @@ function restoreOriginals() {
       backup.obj[name] = backup.methods[name];
     };
   });
+}
+
+function pickAllArgs(context, args) {
+  return args;
 }
