@@ -4,7 +4,12 @@ function hijackConnection(original, type) {
     if(args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
-        args[args.length - 1] = zone.bind(callback, false, {type: type}, pickAllArgs);
+        var ownerInfo = {
+          type: type,
+          name: args[0],
+          args: args.slice(1, args.length - 1)
+        };
+        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       }
     }
     return original.apply(this, args);
@@ -17,12 +22,21 @@ function hijackSubscribe(originalFunction, type) {
     if(args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
-        var ownerInfo = {type: type}
+        var ownerInfo = {
+          type: type,
+          name: args[0],
+          args: args.slice(1, args.length - 1)
+        };
         args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
+          var ownerInfo = {
+            type: type,
+            name: args[0],
+            args: args.slice(1, args.length - 1),
+            callbackType: funName
+          };
           if(typeof callback[funName] === "function") {
-            var ownerInfo = {type: type, callbackType: funName};
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
         })
