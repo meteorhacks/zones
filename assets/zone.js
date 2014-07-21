@@ -367,7 +367,7 @@ Zone.patch = function patch () {
       };
     }).
     forEach(function(info) {
-      Zone.patchEventTargetMethods(prototype, thing);
+      Zone.patchEventTargetMethods(info.prototype, info.thing);
     });
   }
 
