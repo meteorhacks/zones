@@ -88,7 +88,7 @@ function hijackComponentEvents(original) {
       dict[target] = function () {
         var args = Array.prototype.slice.call(arguments);
         zone.owner = {
-          type: 'templateEvent',
+          type: 'Template.event',
           event: target,
           template: name
         };
@@ -102,7 +102,7 @@ function hijackComponentEvents(original) {
 function hijackTemplateRendered(original, name) {
   return function () {
     var args = Array.prototype.slice.call(arguments);
-    zone.owner = {type: 'templateEvent', event: 'rendered', template: name};
+    zone.owner = {type: 'Template.rendered', template: name};
     return original.apply(this, args);
   }
 }
