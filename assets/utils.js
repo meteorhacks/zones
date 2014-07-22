@@ -4,7 +4,12 @@ function hijackConnection(original, type) {
     if(args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
-        args[args.length - 1] = zone.bind(callback, false, {type: type}, pickAllArgs);
+        var ownerInfo = {
+          type: type,
+          name: args[0],
+          args: args.slice(1, args.length - 1)
+        };
+        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       }
     }
     return original.apply(this, args);
@@ -17,12 +22,21 @@ function hijackSubscribe(originalFunction, type) {
     if(args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
-        var ownerInfo = {type: type}
+        var ownerInfo = {
+          type: type,
+          name: args[0],
+          args: args.slice(1, args.length - 1)
+        };
         args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
+          var ownerInfo = {
+            type: type,
+            name: args[0],
+            args: args.slice(1, args.length - 1),
+            callbackType: funName
+          };
           if(typeof callback[funName] === "function") {
-            var ownerInfo = {type: type, callbackType: funName};
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
         })
@@ -63,6 +77,33 @@ function hijackCursor(Cursor) {
       }
       return original.call(this, options);
     };
+  }
+}
+
+function hijackComponentEvents(original) {
+  return function (dict) {
+    var self = this;
+    var name = this.kind.split('_')[1];
+    _.each(dict, function(handler, target) {
+      dict[target] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        zone.owner = {
+          type: 'Template.event',
+          event: target,
+          template: name
+        };
+        handler.apply(self, args);
+      }
+    });
+    return original.call(this, dict);
+  }
+}
+
+function hijackTemplateRendered(original, name) {
+  return function () {
+    var args = Array.prototype.slice.call(arguments);
+    zone.owner = {type: 'Template.rendered', template: name};
+    return original.apply(this, args);
   }
 }
 

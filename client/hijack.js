@@ -26,6 +26,25 @@ Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe, 'Meteor.subscribe'
 
 hijackCursor(LocalCollection.Cursor.prototype);
 
+/**
+ * Hijack UI.Component.events() to add useful owner info to zone object
+ * e.g. {type: 'templateEvent', event: 'click .selector', template: 'home'}
+ */
+var original_Component_events = UI.Component.events;
+UI.Component.events = hijackComponentEvents(original_Component_events);
+
+/**
+ * Hijack each templates rendered handler to add template name to owner info
+ */
+Meteor.startup(function () {
+  _(Template).each(function (template, name) {
+    if(typeof template === 'object' && typeof template.rendered == 'function') {
+      var original = template.rendered;
+      template.rendered = hijackTemplateRendered(original, name);
+    }
+  });
+});
+
 function getConnectionProto() {
   var con = DDP.connect(window.location.origin);
   con.disconnect();
