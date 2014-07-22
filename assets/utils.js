@@ -80,6 +80,19 @@ function hijackCursor(Cursor) {
   }
 }
 
+function hijackDomRangeOn(original) {
+  return function (events, selector, handler) {
+    if(handler && typeof handler === 'function') {
+      var newHandler = function () {
+        zone.owner = {type: 'domEvent', events: events, selector: selector};
+        var args = Array.prototype.slice.call(arguments);
+        handler.apply(this, args);
+      };
+    }
+    return original.call(this, events, selector, newHandler);
+  }
+}
+
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
   if(obj && Array.isArray(methodNames)) {

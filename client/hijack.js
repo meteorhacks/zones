@@ -26,6 +26,13 @@ Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe, 'Meteor.subscribe'
 
 hijackCursor(LocalCollection.Cursor.prototype);
 
+/**
+ * Hijack DomRange.prototype.on to add useful owner info to zone object
+ * e.g. {type: 'domEvent', events: 'click', selector: '.some-selector'}
+ */
+var original_DomRange_on = UI.DomRange.prototype.on;
+UI.DomRange.prototype.on = hijackDomRangeOn(original_DomRange_on);
+
 function getConnectionProto() {
   var con = DDP.connect(window.location.origin);
   con.disconnect();

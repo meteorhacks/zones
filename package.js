@@ -18,6 +18,7 @@ Package.on_use(function (api) {
     'client/hijack.js'
   ], 'client');
 
+  api.use('ui', 'client');
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
   api.use('inject-initial');
