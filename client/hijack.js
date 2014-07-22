@@ -1,3 +1,8 @@
+// some EnvironmentVariables to optimize tracking
+// see /assests/utils.js
+Zone.fromCall = new Meteor.EnvironmentVariable();
+Zone.fromObserve = new Meteor.EnvironmentVariable();
+
 var ConnectionProto = getConnectionProto();
 
 /*

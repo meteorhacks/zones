@@ -1,7 +1,12 @@
 function hijackConnection(original, type) {
   return function () {
+    var self = this;
     var args = Array.prototype.slice.call(arguments);
-    if(args.length) {
+
+    // if this comes from a Method.call we don't need to track it
+    var isFromCall = Zone.fromCall.get();
+
+    if(!isFromCall && args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
         var ownerInfo = {
@@ -12,7 +17,15 @@ function hijackConnection(original, type) {
         args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       }
     }
-    return original.apply(this, args);
+
+    if(type == "Meteor.call") {
+      // make sure this won't get tracked another time
+      return Zone.fromCall.withValue(true, function() {
+        return original.apply(self, args);
+      });
+    } else {
+      return original.apply(this, args);
+    }
   }
 }
 
@@ -62,7 +75,11 @@ function hijackCursor(Cursor) {
     var original = Cursor[type];
     Cursor[type] = function (options) {
       var self = this;
-      if(options) {
+      // check this request comes from an observer call
+      // if so, we don't need to track this request
+      var isFromObserve = Zone.fromObserve.get();
+
+      if(!isFromObserve && options) {
         callbacks.forEach(function (funName) {
           var ownerInfo = {
             type: 'MongoCursor.' + type,
@@ -75,7 +92,15 @@ function hijackCursor(Cursor) {
           }
         });
       }
-      return original.call(this, options);
+
+      if(type == 'observe') {
+        // notify observeChanges to not to track again
+        return Zone.fromObserve.withValue(true, function() {
+          return original.call(self, options);
+        });
+      } else {
+        return original.call(this, options);
+      }
     };
   }
 }
