@@ -3,7 +3,7 @@
   "description": "Zone.Js integration for meteor",
   "homepage": "https://github.com/meteorhacks/meteor-zones",
   "author": "MeteorHacks",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "git": "https://github.com/meteorhacks/meteor-zones.git",
   "packages": {
     "inject-initial": {}
