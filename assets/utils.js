@@ -80,16 +80,22 @@ function hijackCursor(Cursor) {
   }
 }
 
-function hijackDomRangeOn(original) {
-  return function (events, selector, handler) {
-    if(handler && typeof handler === 'function') {
-      var newHandler = function () {
-        zone.owner = {type: 'domEvent', events: events, selector: selector};
+function hijackComponentEvents(original) {
+  return function (dict) {
+    var self = this;
+    var name = this.kind.split('_')[1];
+    _.each(dict, function(handler, target) {
+      dict[target] = function () {
         var args = Array.prototype.slice.call(arguments);
-        handler.apply(this, args);
-      };
-    }
-    return original.call(this, events, selector, newHandler);
+        zone.owner = {
+          type: 'templateEvent',
+          event: target,
+          template: name
+        };
+        handler.apply(self, args);
+      }
+    });
+    return original.call(this, dict);
   }
 }
 

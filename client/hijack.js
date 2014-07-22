@@ -27,11 +27,11 @@ Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe, 'Meteor.subscribe'
 hijackCursor(LocalCollection.Cursor.prototype);
 
 /**
- * Hijack DomRange.prototype.on to add useful owner info to zone object
- * e.g. {type: 'domEvent', events: 'click', selector: '.some-selector'}
+ * Hijack UI.Component.events() to add useful owner info to zone object
+ * e.g. {type: 'templateEvent', event: 'click .selector', template: 'home'}
  */
-var original_DomRange_on = UI.DomRange.prototype.on;
-UI.DomRange.prototype.on = hijackDomRangeOn(original_DomRange_on);
+var original_Component_events = UI.Component.events;
+UI.Component.events = hijackComponentEvents(original_Component_events);
 
 /**
  * Hijack each templates rendered handler to add template name to owner info
