@@ -33,6 +33,18 @@ hijackCursor(LocalCollection.Cursor.prototype);
 var original_DomRange_on = UI.DomRange.prototype.on;
 UI.DomRange.prototype.on = hijackDomRangeOn(original_DomRange_on);
 
+/**
+ * Hijack each templates rendered handler to add template name to owner info
+ */
+Meteor.startup(function () {
+  _(Template).each(function (template, name) {
+    if(typeof template === 'object' && typeof template.rendered == 'function') {
+      var original = template.rendered;
+      template.rendered = hijackTemplateRendered(original, name);
+    }
+  });
+});
+
 function getConnectionProto() {
   var con = DDP.connect(window.location.origin);
   con.disconnect();

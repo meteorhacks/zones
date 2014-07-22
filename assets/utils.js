@@ -93,6 +93,14 @@ function hijackDomRangeOn(original) {
   }
 }
 
+function hijackTemplateRendered(original, name) {
+  return function () {
+    var args = Array.prototype.slice.call(arguments);
+    zone.owner = {type: 'templateEvent', event: 'rendered', template: name};
+    return original.apply(this, args);
+  }
+}
+
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
   if(obj && Array.isArray(methodNames)) {
