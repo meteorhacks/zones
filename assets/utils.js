@@ -84,8 +84,14 @@ function hijackComponentEvents(original) {
   return function (dict) {
     var self = this;
     var name = this.kind.split('_')[1];
-    _.each(dict, function(handler, target) {
-      dict[target] = function () {
+    for (var target in dict) {
+      dict[target] = prepareHandler(dict[target], target);
+    }
+
+    return original.call(this, dict);
+
+    function prepareHandler(handler, target) {
+      return function () {
         var args = Array.prototype.slice.call(arguments);
         zone.owner = {
           type: 'Template.event',
@@ -93,9 +99,9 @@ function hijackComponentEvents(original) {
           template: name
         };
         handler.apply(self, args);
-      }
-    });
-    return original.call(this, dict);
+      };
+    }
+
   }
 }
 
