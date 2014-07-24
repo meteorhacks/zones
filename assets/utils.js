@@ -133,7 +133,7 @@ function hijackComponentEvents(original) {
 function hijackTemplateRendered(original, name) {
   return function () {
     var args = Array.prototype.slice.call(arguments);
-    zone.owner = {type: 'Template.rendered', template: name};
+    zone.addEvent({type: 'Template.rendered', template: name});
     return original.apply(this, args);
   }
 }
@@ -141,7 +141,9 @@ function hijackTemplateRendered(original, name) {
 function hijackDepsFlush(original, type) {
   return function () {
     var args = Array.prototype.slice.call(arguments);
-    zone.owner = {type: type};
+    if(zone.owner && window.zone.owner.type == 'setTimeout') {
+      zone.owner = {type: type};
+    }
     return original.apply(this, args);
   }
 }
