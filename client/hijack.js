@@ -50,6 +50,13 @@ Meteor.startup(function () {
   });
 });
 
+/**
+ * Hijack Deps.autorun to set correct zone owner type
+ * Otherwise these will be setTimeout
+ */
+var originalSessionSet = Session.set;
+Session.set = hijackSessionSet(originalSessionSet, 'Session.set');
+
 function getConnectionProto() {
   var con = DDP.connect(getCurrentUrlOrigin());
   con.disconnect();
