@@ -10,6 +10,7 @@
 //  * In some places zone.bind has been called with zone.bind(fn, false, ownerInfo)
 //  * Zone.init() has been removed from this script to support extending
 //      zones via some other script
+//  * Add some html element info to ownerInfo of event listeners
 
 function Zone(parentZone, data) {
   var zone = (arguments.length) ? Object.create(parentZone) : this;
@@ -301,7 +302,22 @@ Zone.patchProperties = function (obj, properties) {
 Zone.patchEventTargetMethods = function (obj, thing) {
   var addDelegate = obj.addEventListener;
   obj.addEventListener = function (eventName, fn) {
-    var ownerInfo = {type: thing + ".addEventListener", event: eventName};
+    // Add some element info to ownerInfo in order to make it easier to identify
+    // to which html element this event listener was attached to
+    var ownerInfo = {
+      type: thing + ".addEventListener",
+      event: eventName,
+      name: this.localName
+    };
+
+    if(this.attributes) {
+      ownerInfo.attributes = {};
+      for(var i=this.attributes.length; i-->0;) {
+        var attr = this.attributes[i];
+        ownerInfo.attributes[attr.name] = attr.value;
+      }
+    }
+
     arguments[1] = fn._bound = zone.bind(fn, false, ownerInfo);
     return addDelegate.apply(this, arguments);
   };
