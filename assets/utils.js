@@ -138,6 +138,14 @@ function hijackTemplateRendered(original, name) {
   }
 }
 
+function hijackDepsFlush(original, type) {
+  return function () {
+    var args = Array.prototype.slice.call(arguments);
+    zone.owner = {type: type};
+    return original.apply(this, args);
+  }
+}
+
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
   if(obj && Array.isArray(methodNames)) {

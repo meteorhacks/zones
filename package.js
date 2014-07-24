@@ -20,6 +20,7 @@ Package.on_use(function (api) {
 
   api.use('ui', 'client');
   api.use('templating', 'client');
+  api.use('deps', 'client');
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
   api.use('inject-initial');
