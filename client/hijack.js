@@ -50,11 +50,26 @@ Meteor.startup(function () {
   });
 });
 
+/**
+ * Hijack Deps.autorun to set correct zone owner type
+ * Otherwise these will be setTimeout
+ */
+var originalDepsFlush = Deps.flush;
+Deps.flush = hijackDepsFlush(originalDepsFlush, 'Deps.flush');
+
+
 function getConnectionProto() {
-  var con = DDP.connect(window.location.origin);
+  var con = DDP.connect(getCurrentUrlOrigin());
   con.disconnect();
   var proto = con.constructor.prototype;
   return proto;
+}
+
+function getCurrentUrlOrigin() {
+  // Internet Explorer doesn't have window.location.origin
+  return window.location.origin || window.location.protocol
+  + window.location.hostname
+  + window.location.port;
 }
 
 // we've a better error handling support with zones
