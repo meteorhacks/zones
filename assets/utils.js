@@ -148,6 +148,14 @@ function hijackDepsFlush(original, type) {
   }
 }
 
+function hijackSessionSet(original, type) {
+  return function () {
+    var args = Array.prototype.slice.call(arguments);
+    zone.addEvent({type: type, key: args[0], value: args[1]});
+    return original.apply(this, args);
+  }
+}
+
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
   if(obj && Array.isArray(methodNames)) {
