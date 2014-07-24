@@ -105,6 +105,10 @@ extendZone({
     var zone = this.fork();
 
     if(ownerInfo) {
+      if(ownerInfo.args) {
+        ownerInfo.args = validateArgs(this, ownerInfo.args);
+      }
+
       zone.setOwner(ownerInfo);
       ownerInfo.zoneId = zone.id;
       this.addEvent(ownerInfo);
