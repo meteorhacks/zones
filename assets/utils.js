@@ -14,7 +14,7 @@ function hijackConnection(original, type) {
           name: args[0],
           args: args.slice(1, args.length - 1)
         };
-        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
+        args[args.length - 1] = zone.bind(callback, false, ownerInfo, validateEventArgs);
       }
     }
 
@@ -40,7 +40,7 @@ function hijackSubscribe(originalFunction, type) {
           name: args[0],
           args: args.slice(1, args.length - 1)
         };
-        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
+        args[args.length - 1] = zone.bind(callback, false, ownerInfo, validateEventArgs);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
           var ownerInfo = {
@@ -50,7 +50,7 @@ function hijackSubscribe(originalFunction, type) {
             callbackType: funName
           };
           if(typeof callback[funName] === "function") {
-            callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
+            callback[funName] = zone.bind(callback[funName], false, ownerInfo, validateEventArgs);
           }
         })
       }
@@ -88,7 +88,7 @@ function hijackCursor(Cursor) {
           };
 
           if(typeof options[funName] === 'function') {
-            options[funName] = zone.bind(options[funName], false, ownerInfo, pickAllArgs);
+            options[funName] = zone.bind(options[funName], false, ownerInfo, validateEventArgs);
           }
         });
       }
@@ -160,4 +160,20 @@ function restoreOriginals() {
 
 function pickAllArgs(context, args) {
   return args;
+}
+
+var MAXIMUM_ARGS_LENGTH = 1024;
+var MAXIMUM_ARGS_LENGTH_ERROR = '--- argument size exceeds limit ---';
+
+// remove args if it exceeds maximum size limit
+function validateEventArgs(context, args) {
+  if(args && Array.isArray(args)) {
+    return args.map(function (item) {
+      if(JSON.stringify(item).length > MAXIMUM_ARGS_LENGTH){
+        return MAXIMUM_ARGS_LENGTH_ERROR;
+      } else {
+        return item;
+      }
+    })
+  }
 }
