@@ -312,10 +312,10 @@ Zone.patchEventTargetMethods = function (obj, thing) {
 
     if(this.attributes) {
       ownerInfo.attributes = {};
-      for(var i=this.attributes.length; i-->0;) {
-        var attr = this.attributes[i];
+      var attributesArray = Array.prototype.slice.call(this.attributes);
+      attributesArray.forEach(function (attr) {
         ownerInfo.attributes[attr.name] = attr.value;
-      }
+      });
     }
 
     arguments[1] = fn._bound = zone.bind(fn, false, ownerInfo);
