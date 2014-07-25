@@ -123,7 +123,7 @@ function hijackComponentEvents(original) {
           event: target,
           template: name
         };
-        handler.apply(self, args);
+        handler.apply(this, args);
       };
     }
 
