@@ -304,10 +304,20 @@ Zone.patchEventTargetMethods = function (obj, thing) {
   obj.addEventListener = function (eventName, fn) {
     // Add some element info to ownerInfo in order to make it easier to identify
     // to which html element this event listener was attached to
+
+    function getName(element) {
+      if(element === window) {
+        return 'window';
+      } else {
+        return element.localName || element.nodeName;
+      }
+    }
+
+    console.log(this);
     var ownerInfo = {
       type: thing + ".addEventListener",
       event: eventName,
-      name: this.localName
+      name: getName(this)
     };
 
     if(this.attributes) {
