@@ -313,7 +313,6 @@ Zone.patchEventTargetMethods = function (obj, thing) {
       }
     }
 
-    console.log(this);
     var ownerInfo = {
       type: thing + ".addEventListener",
       event: eventName,
