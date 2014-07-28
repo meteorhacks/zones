@@ -1,10 +1,10 @@
 {
   "name": "zones",
   "description": "Zone.Js integration for meteor",
-  "homepage": "https://github.com/meteorhacks/meteor-zones",
+  "homepage": "https://github.com/meteorhacks/zones",
   "author": "MeteorHacks",
   "version": "0.4.8",
-  "git": "https://github.com/meteorhacks/meteor-zones.git",
+  "git": "https://github.com/meteorhacks/zones.git",
   "packages": {
     "inject-initial": {}
   }
