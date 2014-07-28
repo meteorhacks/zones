@@ -15,7 +15,8 @@ Package.on_test(function (api) {
   ], 'client');
 
   api.add_files([
-    'tests/loader.js'
+    'tests/loader.js',
+    'tests/reporters.js',
   ], 'client')
 });
 
