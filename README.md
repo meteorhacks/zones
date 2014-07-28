@@ -1,4 +1,4 @@
-[![](https://api.travis-ci.org/meteorhacks/meteor-zones.svg)](https://travis-ci.org/meteorhacks/meteor-zones)
+[![](https://api.travis-ci.org/meteorhacks/zones.svg)](https://travis-ci.org/meteorhacks/zones)
 
 # zones
 
