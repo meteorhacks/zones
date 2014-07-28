@@ -3,6 +3,23 @@ Package.describe({
 });
 
 Package.on_use(function (api) {
+  addPackageFiles(api);
+});
+
+Package.on_test(function (api) {
+  addPackageFiles(api);
+
+  api.use([
+    'tinytest',
+    'test-helpers',
+  ], 'client');
+
+  api.add_files([
+    'tests/loader.js'
+  ], 'client')
+});
+
+function addPackageFiles(api) {
   api.add_files([
     'assets/utils.js',
     'assets/before.js',
@@ -25,4 +42,4 @@ Package.on_use(function (api) {
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
   api.use('inject-initial');
-});
+}
