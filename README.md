@@ -1,5 +1,4 @@
 [![](https://api.travis-ci.org/meteorhacks/zones.svg)](https://travis-ci.org/meteorhacks/zones)
-
 # zones
 
 ### Zone.js integration for meteor
