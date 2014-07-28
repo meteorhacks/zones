@@ -15,9 +15,20 @@ Package.on_test(function (api) {
   ], 'client');
 
   api.add_files([
+    'tests/_both.js'
+  ], ['client', 'server']);
+
+  api.add_files([
+    'tests/_server.js'
+  ], 'server');
+
+  api.add_files([
     'tests/loader.js',
     'tests/reporters.js',
-  ], 'client')
+    'tests/hijacks/methods.js',
+    'tests/hijacks/subscriptions.js',
+    'tests/hijacks/collections.js',
+  ], 'client');
 });
 
 function addPackageFiles(api) {
