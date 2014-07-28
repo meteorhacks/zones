@@ -1,1 +1,4 @@
 .build*
+.npm
+packages
+smart.lock
