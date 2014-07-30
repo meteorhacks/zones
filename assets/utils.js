@@ -178,12 +178,39 @@ function hijackRouterConfigure(original, type) {
             hook: hookName,
             path: ctrl.path
           });
-          hookFn.apply(this, args)
+          hookFn.apply(this, args);
         }
       }
     });
     return original.apply(this, args);
   }
+}
+
+function hijackRouterGlobalHooks(Router, type) {
+  routerEvents.forEach(function (hookName) {
+    var hookFn = Router[hookName];
+    Router[hookName] = function (hook, options) {
+      var self = this;
+      var args = Array.prototype.slice.call(arguments);
+      var hook = args[0];
+      if(hook && typeof hook === 'function') {
+        // override hook function before sending to iron-router
+        args[0] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          var ctrl = self._currentController;
+          zone.addEvent({
+            type: type,
+            hook: hookName,
+            path: ctrl.path
+          });
+          hook.apply(this, args);
+        }
+      }
+      hookFn.apply(this, args);
+    }
+  });
+
+  return Router;
 }
 
 //--------------------------------------------------------------------------\\
