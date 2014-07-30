@@ -166,7 +166,7 @@ var routerEvents = [
 function hijackRouterConfigure(original, type) {
   return function (dict) {
     var args = Array.prototype.slice.call(arguments);
-    routerEvents.forEach(function (hookName) {
+    dict && routerEvents.forEach(function (hookName) {
       var hookFn = dict[hookName];
       if(typeof hookFn === 'function') {
         dict[hookName] = function () {
@@ -214,11 +214,12 @@ function hijackRouterOptions(original, type) {
     var args = Array.prototype.slice.call(arguments);
 
     // hijack options
-    routerEvents.forEach(function (hookName) {
+    options && routerEvents.forEach(function (hookName) {
       var hookFn = options[hookName];
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
+          console.log('-- this', this)
           zone.addEvent({
             type: type,
             hook: hookName,
@@ -236,7 +237,7 @@ function hijackRouterOptions(original, type) {
 function hijackRouteController(original, type) {
   return function (options) {
     var args = Array.prototype.slice.call(arguments);
-    routerEvents.forEach(function (hookName) {
+    options && routerEvents.forEach(function (hookName) {
       var hookFn = options[hookName];
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
