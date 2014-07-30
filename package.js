@@ -54,4 +54,5 @@ function addPackageFiles(api) {
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
   api.use('inject-initial');
+  api.use('iron-router', 'client', {weak: true});
 }

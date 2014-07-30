@@ -64,6 +64,17 @@ Session.set = hijackSessionSet(originalSessionSet, 'Session.set');
 var originalDepsFlush = Deps.flush;
 Deps.flush = hijackDepsFlush(originalDepsFlush, 'Deps.flush');
 
+/**
+ * Hijack IronRouter if it's available
+ * Add iron router specific events
+ */
+ if(Package['iron-router']){
+   var Router = Package['iron-router'].Router;
+   Router.configure = hijackRouterConfigure(Router.configure, 'Router.configure')
+ }
+
+//--------------------------------------------------------------------------\\
+
 function getConnectionProto() {
   var con = DDP.connect(getCurrentUrlOrigin());
   con.disconnect();

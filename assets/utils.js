@@ -156,6 +156,38 @@ function hijackSessionSet(original, type) {
   }
 }
 
+//--------------------------------------------------------------------------\\
+
+var routerEvents = [
+  'onRun', 'onData', 'onBeforeAction', 'onAfterAction', 'onStop', 'waitOn',
+  'load', 'before', 'after', 'unload',
+];
+
+function hijackRouterConfigure(original, type) {
+  return function (dict) {
+    var self = this;
+    var args = Array.prototype.slice.call(arguments);
+    routerEvents.forEach(function (hookName) {
+      var hookFn = dict[hookName];
+      if(typeof hookFn === 'function') {
+        dict[hookName] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          var ctrl = self._currentController;
+          zone.addEvent({
+            type: type,
+            hook: hookName,
+            path: ctrl.path
+          });
+          hookFn.apply(this, args)
+        }
+      }
+    });
+    return original.apply(this, args);
+  }
+}
+
+//--------------------------------------------------------------------------\\
+
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
   if(obj && Array.isArray(methodNames)) {
