@@ -12,12 +12,6 @@ Package.on_use(function (api) {
   if(ironRouterExists()) {
     api.use(['iron-router'], ['client', 'server']);
   }
-
-  // A hack to detect if IR has been added or removed from the app
-  // if IR was not there on the app and added later.
-  if(isAppDir('./')) {
-    api.add_files('../../.meteor/packages', ['client', 'server']);
-  }
 });
 
 Package.on_test(function (api) {
