@@ -161,6 +161,7 @@ function hijackSessionSet(original, type) {
 var routerEvents = [
   'onRun', 'onData', 'onBeforeAction', 'onAfterAction', 'onStop', 'waitOn',
   'load', 'before', 'after', 'unload',
+  'data', 'waitOn'
 ];
 
 function hijackRouterConfigure(original, type) {
@@ -174,6 +175,7 @@ function hijackRouterConfigure(original, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hookFn.apply(this, args);
@@ -197,6 +199,7 @@ function hijackRouterGlobalHooks(Router, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hook.apply(this, args);
@@ -223,6 +226,7 @@ function hijackRouterOptions(original, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hookFn.apply(this, args);
@@ -245,6 +249,7 @@ function hijackRouteController(original, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hookFn.apply(this, args);
