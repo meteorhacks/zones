@@ -156,6 +156,107 @@ function hijackSessionSet(original, type) {
   }
 }
 
+//--------------------------------------------------------------------------\\
+
+var routerEvents = [
+  'onRun', 'onData', 'onBeforeAction', 'onAfterAction', 'onStop', 'waitOn',
+  'load', 'before', 'after', 'unload',
+];
+
+function hijackRouterConfigure(original, type) {
+  return function (dict) {
+    var args = Array.prototype.slice.call(arguments);
+    routerEvents.forEach(function (hookName) {
+      var hookFn = dict[hookName];
+      if(typeof hookFn === 'function') {
+        dict[hookName] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          zone.addEvent({
+            type: type,
+            hook: hookName,
+            path: this.path
+          });
+          hookFn.apply(this, args);
+        }
+      }
+    });
+    return original.apply(this, args);
+  }
+}
+
+function hijackRouterGlobalHooks(Router, type) {
+  routerEvents.forEach(function (hookName) {
+    var hookFn = Router[hookName];
+    Router[hookName] = function (hook, options) {
+      var args = Array.prototype.slice.call(arguments);
+      var hook = args[0];
+      if(hook && typeof hook === 'function') {
+        // override hook function before sending to iron-router
+        args[0] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          zone.addEvent({
+            type: type,
+            hook: hookName,
+            path: this.path
+          });
+          hook.apply(this, args);
+        }
+      }
+      hookFn.apply(this, args);
+    }
+  });
+
+  return Router;
+}
+
+function hijackRouterOptions(original, type) {
+  return function (name, options) {
+    var args = Array.prototype.slice.call(arguments);
+
+    // hijack options
+    routerEvents.forEach(function (hookName) {
+      var hookFn = options[hookName];
+      if(typeof hookFn === 'function') {
+        options[hookName] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          zone.addEvent({
+            type: type,
+            hook: hookName,
+            path: this.path
+          });
+          hookFn.apply(this, args);
+        }
+      }
+    });
+
+    original.apply(this, args);
+  }
+}
+
+function hijackRouteController(original, type) {
+  return function (options) {
+    var args = Array.prototype.slice.call(arguments);
+    routerEvents.forEach(function (hookName) {
+      var hookFn = options[hookName];
+      if(typeof hookFn === 'function') {
+        options[hookName] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          zone.addEvent({
+            type: type,
+            hook: hookName,
+            path: this.path
+          });
+          hookFn.apply(this, args);
+        }
+      }
+    });
+    zone.addEvent({type: type});
+    return original.apply(this, args);
+  }
+}
+
+//--------------------------------------------------------------------------\\
+
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
   if(obj && Array.isArray(methodNames)) {
