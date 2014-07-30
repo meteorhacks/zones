@@ -164,12 +164,12 @@ var routerEvents = [
 ];
 
 function hijackRouterConfigure(original, type) {
-  return function (dict) {
+  return function (options) {
     var args = Array.prototype.slice.call(arguments);
-    dict && routerEvents.forEach(function (hookName) {
-      var hookFn = dict[hookName];
+    options && routerEvents.forEach(function (hookName) {
+      var hookFn = options[hookName];
       if(typeof hookFn === 'function') {
-        dict[hookName] = function () {
+        options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
           zone.addEvent({
             type: type,
