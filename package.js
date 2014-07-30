@@ -1,9 +1,23 @@
+var fs = Npm.require('fs');
+var path = Npm.require('path');
+
 Package.describe({
   summary: 'Zone.Js integration for meteor'
 });
 
 Package.on_use(function (api) {
   addPackageFiles(api);
+
+  // Add iron router only if it exists
+  if(ironRouterExists()) {
+    api.use(['iron-router'], ['client', 'server']);
+  }
+
+  // A hack to detect if IR has been added or removed from the app
+  // if IR was not there on the app and added later.
+  if(isAppDir('./')) {
+    api.add_files('../../.meteor/packages', ['client', 'server']);
+  }
 });
 
 Package.on_test(function (api) {
@@ -54,5 +68,40 @@ function addPackageFiles(api) {
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
   api.use('inject-initial');
-  api.use('iron-router', 'client', {weak: true});
+}
+
+//--------------------------------------------------------------------------\\
+
+function ironRouterExists() {
+  try {
+    var meteorPackages = fs.readFileSync(path.join(meteorRoot(), '.meteor', 'packages'), 'utf8');
+    return !!meteorPackages.match(/iron-router/);
+  } catch(ex) {
+    // seems like FastRender running outside a Meteor app (ie: with tinytest)
+    // So there is no iron-router
+    return false;
+  }
+}
+
+function meteorRoot() {
+  var currentDir = process.cwd();
+  while (currentDir) {
+    var newDir = path.dirname(currentDir);
+    if (isAppDir(currentDir)) {
+      break;
+    } else if (newDir === currentDir) {
+      return null;
+    } else {
+      currentDir = newDir;
+    }
+  }
+  return currentDir;
+}
+
+function isAppDir(filepath) {
+  try {
+    return fs.statSync(path.join(filepath, '.meteor', 'packages')).isFile();
+  } catch (e) {
+    return false;
+  }
 }
