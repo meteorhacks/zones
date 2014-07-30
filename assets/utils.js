@@ -108,7 +108,7 @@ function hijackCursor(Cursor) {
 function hijackComponentEvents(original) {
   return function (dict) {
     var self = this;
-    var name = this.kind.split('_')[1];
+    var name = this.__templateName;
     for (var target in dict) {
       dict[target] = prepareHandler(dict[target], target);
     }

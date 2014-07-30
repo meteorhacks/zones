@@ -32,11 +32,15 @@ Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe, 'Meteor.subscribe'
 hijackCursor(LocalCollection.Cursor.prototype);
 
 /**
- * Hijack UI.Component.events() to add useful owner info to zone object
+ * Hijack Template.prototype.events() to add useful owner info to zone object
+ * Use UI.Component.events for older versions of Meteor
  * e.g. {type: 'templateEvent', event: 'click .selector', template: 'home'}
  */
-var original_Component_events = UI.Component.events;
-UI.Component.events = hijackComponentEvents(original_Component_events);
+if(Template.prototype) {
+  Template.prototype.events = hijackComponentEvents(Template.prototype.events);
+} else if (UI.Component) {
+  UI.Component.events = hijackComponentEvents(UI.Component.events);
+}
 
 /**
  * Hijack each templates rendered handler to add template name to owner info
