@@ -25,6 +25,8 @@ Tinytest.add(
   'Loader - do not override some functions',
   function (test) {
     var expected = 'function requestAnimationFrame() { [native code] }';
-    test.equal(expected, requestAnimationFrame.toString());
+    if(requestAnimationFrame) {
+      test.equal(expected, requestAnimationFrame.toString());
+    }
   }
 );
