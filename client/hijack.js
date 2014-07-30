@@ -70,8 +70,11 @@ Deps.flush = hijackDepsFlush(originalDepsFlush, 'Deps.flush');
  */
  if(Package['iron-router']){
    var Router = Package['iron-router'].Router;
+   var RouteController = Package['iron-router'].RouteController;
    Router = hijackRouterGlobalHooks(Router, 'Router.global');
    Router.configure = hijackRouterConfigure(Router.configure, 'Router.configure');
+   Router.route = hijackRouterOptions(Router.route, 'Router.route');
+   RouteController.extend = hijackRouteController(RouteController.extend, 'RouteController.extend');
  }
 
 //--------------------------------------------------------------------------\\
