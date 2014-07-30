@@ -222,7 +222,6 @@ function hijackRouterOptions(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          console.log('-- this', this)
           zone.addEvent({
             type: type,
             hook: hookName,
