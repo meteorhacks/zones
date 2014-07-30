@@ -33,10 +33,14 @@ hijackCursor(LocalCollection.Cursor.prototype);
 
 /**
  * Hijack Template.prototype.events() to add useful owner info to zone object
+ * Use UI.Component.events for older versions of Meteor
  * e.g. {type: 'templateEvent', event: 'click .selector', template: 'home'}
  */
-var original_Component_events = Template.prototype.events;
-Template.prototype.events = hijackComponentEvents(original_Component_events);
+if(Template.prototype) {
+  Template.prototype.events = hijackComponentEvents(Template.prototype.events);
+} else if (UI.Component) {
+  UI.Component.events = hijackComponentEvents(UI.Component.events);
+}
 
 /**
  * Hijack each templates rendered handler to add template name to owner info
