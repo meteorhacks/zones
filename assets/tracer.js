@@ -33,6 +33,17 @@ extendZone({
     // so, we need to create eventMap explicitely to stay it in the current zone
     zone.eventMap = zone.eventMap;
 
+    // infoMap is just like eventMap, but it deepCopy all the info
+    // so only previous zone's info will be exists
+    zone.infoMap = zone.infoMap;
+    if(zone.parent && zone.parent._info) {
+      var parentInfo = zone.parent._info;
+      zone.infoMap[zone.parent.id] = {};
+      for(var key in parentInfo) {
+        zone.infoMap[zone.parent.id][key] = parentInfo[key];
+      }
+    }
+
     // make sure owner doesn't get inherited
     zone.owner = undefined;
     return zone;
@@ -48,6 +59,7 @@ extendZone({
     // async call stack
     if(!this.eventMap) {
       this.eventMap = {};
+      this.infoMap = {};
     }
 
     // _events will only be available during the zone running time only
@@ -57,6 +69,8 @@ extendZone({
     // top of the stack
     this._events = [];
     this.eventMap[this.id] = this._events;
+    this._info = {};
+    this.infoMap[this.id] = this._info;
 
     // if there is _ownerArgs we need to add it as an event
     // after that we don't need to _ownerArgs
@@ -68,9 +82,11 @@ extendZone({
 
   afterTask: function() {
     delete this._events;
+    delete this._info;
     // we only keep eventMap in the errored zone only
     if(!this.erroredStack) {
       delete this.eventMap;
+      delete this.infoMap;
     }
   },
 
@@ -80,6 +96,13 @@ extendZone({
     // and we are not interested about those
     if(this._events) {
       this._events.push(event);
+    }
+  },
+
+  setInfo: function(key, value) {
+    console.log(key, value);
+    if(this._info) {
+      this._info[key] = value;
     }
   },
 
