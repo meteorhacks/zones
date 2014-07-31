@@ -100,7 +100,6 @@ extendZone({
   },
 
   setInfo: function(key, value) {
-    console.log(key, value);
     if(this._info) {
       this._info[key] = value;
     }
