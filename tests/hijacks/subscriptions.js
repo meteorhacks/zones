@@ -19,6 +19,19 @@ Tinytest.addAsync(
       delete owner.zoneId;
       test.equal(expected, owner);
 
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        subscription: {
+          name: 'test-ready',
+          args: ['arg1', 'arg2'],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
+
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
       Zone.Reporters.remove('test-reporter');
@@ -51,6 +64,20 @@ Tinytest.addAsync(
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        subscription: {
+          name: 'test-ready',
+          args: ['arg1', 'arg2'],
+          callbackType: 'onReady'
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -86,6 +113,20 @@ Tinytest.addAsync(
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        subscription: {
+          name: 'test-error',
+          args: ['arg1', 'arg2'],
+          callbackType: 'onError'
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);

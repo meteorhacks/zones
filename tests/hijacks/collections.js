@@ -21,6 +21,22 @@ Tinytest.addAsync(
       delete owner.zoneId;
       test.equal(expected, owner);
 
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        method: {
+          name: '/test-collection/insert',
+          args: [
+            [{_id: 'foo', bar: 'baz'}],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
+
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
       Zone.Reporters.remove('test-reporter');
@@ -57,6 +73,22 @@ Tinytest.addAsync(
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        method: {
+          name: '/test-collection/update',
+          args: [
+            [{_id: 'foo'}, {$set: {bar: 'bat'}}, {}],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -109,6 +141,30 @@ Tinytest.addAsync(
       delete owner.args[0][2].insertedId;
       test.equal(expected, owner);
 
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        method: {
+          name: '/test-collection/update',
+          args: [
+            [
+              {_id: 'foo'},
+              {$set: {bar: 'bat'}},
+              {
+                _returnObject: true,
+                upsert: true,
+                // insertedId: 'asd'
+              }
+            ],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
+
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
       Zone.Reporters.remove('test-reporter');
@@ -158,6 +214,32 @@ Tinytest.addAsync(
       delete owner.args[0][2].insertedId;
       test.equal(expected, owner);
 
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        method: {
+          name: '/test-collection/update',
+          args: [
+            [
+              {_id: 'foo'},
+              {$set: {bar: 'bat'}},
+              {
+                _returnObject: true,
+                upsert: true,
+                // insertedId: 'asd'
+              }
+            ],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
+      console.log('-- expectedInfo', expectedInfo)
+      console.log('-- info', info)
+
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
       Zone.Reporters.remove('test-reporter');
@@ -196,6 +278,22 @@ Tinytest.addAsync(
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.parent.id];
+      var expectedInfo = {
+        method: {
+          name: '/test-collection/remove',
+          args: [
+            [{_id: 'foo'}],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
