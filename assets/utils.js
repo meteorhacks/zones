@@ -11,13 +11,13 @@ function hijackConnection(original, type) {
       if(typeof callback === 'function') {
         var methodName = args[0];
         var methodArgs = args.slice(1, args.length - 1);
-        var ownerInfo = {
-          type: type,
-          name: methodName,
-          args: methodArgs
-        };
-        zone.setInfo('method', {name: methodName, args: methodArgs});
-        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
+        var ownerInfo = {type: type, name: methodName, args: methodArgs};
+        args[args.length - 1] = function (argument) {
+          var args = Array.prototype.slice.call(arguments);
+          zone.setInfo(type, ownerInfo);
+          return callback.apply(this, args);
+        }
+        args[args.length - 1] = zone.bind(args[args.length - 1], false, ownerInfo, pickAllArgs);
       }
     }
 
@@ -40,27 +40,22 @@ function hijackSubscribe(originalFunction, type) {
       var subName = args[0];
       var subArgs = args.slice(1, args.length - 1);
       if(typeof callback === 'function') {
-        var ownerInfo = {
-          type: type,
-          name: args[0],
-          args: args.slice(1, args.length - 1)
-        };
-        zone.setInfo('subscription', {name: subName, args: subArgs});
-        args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
+        var ownerInfo = {type: type, name: subName, args: subArgs};
+        args[args.length - 1] = function (argument) {
+          var args = Array.prototype.slice.call(arguments);
+          zone.setInfo(type, ownerInfo);
+          return callback.apply(this, args);
+        }
+        args[args.length - 1] = zone.bind(args[args.length - 1], false, ownerInfo, pickAllArgs);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
-          var ownerInfo = {
-            type: type,
-            name: subName,
-            args: subArgs,
-            callbackType: funName
-          };
-          zone.setInfo('subscription', {
-            name: subName,
-            args: subArgs,
-            callbackType: funName
-          });
+          var ownerInfo = {type: type, name: subName, args: subArgs, callbackType: funName};
           if(typeof callback[funName] === "function") {
+            callback[funName] = function (argument) {
+              var args = Array.prototype.slice.call(arguments);
+              zone.setInfo(type, ownerInfo);
+              return callback.apply(this, args);
+            }
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
         })
@@ -90,18 +85,20 @@ function hijackCursor(Cursor) {
       // if so, we don't need to track this request
       var isFromObserve = Zone.fromObserve.get();
 
-      if(!isFromObserve && options) {
+      if(!this._doNotTrack && !isFromObserve && options) {
         callbacks.forEach(function (funName) {
-          var ownerInfo = {
-            type: 'MongoCursor.' + type,
-            callbackType: funName,
-            collection: self.collection.name
-          };
-          zone.setInfo(type, {
-            collection: self.collection.name,
-            callbackType: funName,
-          });
-          if(typeof options[funName] === 'function') {
+          var callback = options[funName];
+          if(typeof callback === 'function') {
+            var ownerInfo = {
+              type: 'MongoCursor.' + type,
+              callbackType: funName,
+              collection: self.collection.name
+            };
+            options[funName] = function () {
+              var args = Array.prototype.slice.call(arguments);
+              zone.setInfo(type, ownerInfo);
+              return callback.apply(this, args);
+            }
             options[funName] = zone.bind(options[funName], false, ownerInfo, pickAllArgs);
           }
         });
@@ -120,6 +117,7 @@ function hijackCursor(Cursor) {
 }
 
 function hijackComponentEvents(original) {
+  var type = 'Template.event';
   return function (dict) {
     var self = this;
     var name = this.__templateName || this.kind.split('_')[1];
@@ -132,25 +130,13 @@ function hijackComponentEvents(original) {
     function prepareHandler(handler, target) {
       return function () {
         var args = Array.prototype.slice.call(arguments);
-        zone.owner = {
-          type: 'Template.event',
-          event: target,
-          template: name
-        };
-        zone.setInfo('event', {event: target, template: name});
+        var ownerInfo = {type: type, event: target, template: name};
+        zone.owner = ownerInfo;
+        zone.setInfo(type, ownerInfo);
         handler.apply(this, args);
       };
     }
 
-  }
-}
-
-function hijackTemplateRendered(original, name) {
-  return function () {
-    var args = Array.prototype.slice.call(arguments);
-    zone.addEvent({type: 'Template.rendered', template: name});
-    zone.setInfo('event', {event: 'rendered', template: name});
-    return original.apply(this, args);
   }
 }
 
@@ -183,8 +169,12 @@ function hijackTemplateHelpers(template, templateName) {
       // Assuming the value is a template helper
       template[name] = function () {
         var args = Array.prototype.slice.call(arguments);
-        zone.setInfo('templateHelper', {name: name, template: templateName});
-        return helperFn.apply(this, args);
+        zone.setInfo('Template.helper', {name: name, template: templateName});
+        var result = helperFn.apply(this, args);
+        if(result && typeof result.observe === 'function') {
+          result._doNotTrack = true;
+        }
+        return result;
       }
     }
   });
@@ -199,8 +189,12 @@ function hijackNewTemplateHelpers(original, templateName) {
         // Assuming the value is a template helper
         dict[name] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('templateHelper', {name: name, template: templateName});
-          return helperFn.apply(this, args);
+          zone.setInfo('Template.helper', {name: name, template: templateName});
+          var result = helperFn.apply(this, args);
+          if(result && typeof result.observe === 'function') {
+            result._doNotTrack = true;
+          }
+          return result;
         }
       }
     });
@@ -237,7 +231,11 @@ function hijackRouterConfigure(original, type) {
             hook: hookName,
             path: this.path
           });
-          hookFn.apply(this, args);
+          var result = helperFn.apply(this, args);
+          if(!result || typeof result.observe !== 'function') {
+            result._doNotTrack = true;
+          }
+          return result;
         }
       }
     });
@@ -269,7 +267,11 @@ function hijackRouterGlobalHooks(Router, type) {
           hook.apply(this, args);
         }
       }
-      hookFn.apply(this, args);
+      var result = helperFn.apply(this, args);
+      if(!result || typeof result.observe !== 'function') {
+        result._doNotTrack = true;
+      }
+      return result;
     }
   });
 
@@ -297,12 +299,16 @@ function hijackRouterOptions(original, type) {
             hook: hookName,
             path: this.path
           });
-          hookFn.apply(this, args);
+          var result = helperFn.apply(this, args);
+          if(!result || typeof result.observe !== 'function') {
+            result._doNotTrack = true;
+          }
+          return result;
         }
       }
     });
 
-    original.apply(this, args);
+    return original.apply(this, args);
   }
 }
 
