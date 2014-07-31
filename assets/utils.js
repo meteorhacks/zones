@@ -9,11 +9,14 @@ function hijackConnection(original, type) {
     if(!isFromCall && args.length) {
       var callback = args[args.length - 1];
       if(typeof callback === 'function') {
+        var methodName = args[0];
+        var methodArgs = args.slice(1, args.length - 1);
         var ownerInfo = {
           type: type,
-          name: args[0],
-          args: args.slice(1, args.length - 1)
+          name: methodName,
+          args: methodArgs
         };
+        zone.setInfo('method', {name: methodName, args: methodArgs});
         args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       }
     }
@@ -34,21 +37,29 @@ function hijackSubscribe(originalFunction, type) {
     var args = Array.prototype.slice.call(arguments);
     if(args.length) {
       var callback = args[args.length - 1];
+      var subName = args[0];
+      var subArgs = args.slice(1, args.length - 1);
       if(typeof callback === 'function') {
         var ownerInfo = {
           type: type,
           name: args[0],
           args: args.slice(1, args.length - 1)
         };
+        zone.setInfo('subscription', {name: subName, args: subArgs});
         args[args.length - 1] = zone.bind(callback, false, ownerInfo, pickAllArgs);
       } else if(callback) {
         ['onReady', 'onError'].forEach(function (funName) {
           var ownerInfo = {
             type: type,
-            name: args[0],
-            args: args.slice(1, args.length - 1),
+            name: subName,
+            args: subArgs,
             callbackType: funName
           };
+          zone.setInfo('subscription', {
+            name: subName,
+            args: subArgs,
+            callbackType: funName
+          });
           if(typeof callback[funName] === "function") {
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
@@ -86,7 +97,10 @@ function hijackCursor(Cursor) {
             callbackType: funName,
             collection: self.collection.name
           };
-
+          zone.setInfo(type, {
+            collection: self.collection.name,
+            callbackType: funName,
+          });
           if(typeof options[funName] === 'function') {
             options[funName] = zone.bind(options[funName], false, ownerInfo, pickAllArgs);
           }
@@ -123,6 +137,7 @@ function hijackComponentEvents(original) {
           event: target,
           template: name
         };
+        zone.setInfo('event', {event: target, template: name});
         handler.apply(this, args);
       };
     }
@@ -134,6 +149,7 @@ function hijackTemplateRendered(original, name) {
   return function () {
     var args = Array.prototype.slice.call(arguments);
     zone.addEvent({type: 'Template.rendered', template: name});
+    zone.setInfo('event', {event: 'rendered', template: name});
     return original.apply(this, args);
   }
 }
@@ -178,6 +194,11 @@ function hijackRouterConfigure(original, type) {
             name: this.route.name,
             path: this.path
           });
+          zone.setInfo('irHook', {
+            name: this.route.name,
+            hook: hookName,
+            path: this.path
+          });
           hookFn.apply(this, args);
         }
       }
@@ -200,6 +221,11 @@ function hijackRouterGlobalHooks(Router, type) {
             type: type,
             hook: hookName,
             name: this.route.name,
+            path: this.path
+          });
+          zone.setInfo('irHook', {
+            name: this.route.name,
+            hook: hookName,
             path: this.path
           });
           hook.apply(this, args);
@@ -228,6 +254,11 @@ function hijackRouterOptions(original, type) {
             name: this.route.name,
             path: this.path
           });
+          zone.setInfo('irHook', {
+            name: this.route.name,
+            hook: hookName,
+            path: this.path
+          });
           hookFn.apply(this, args);
         }
       }
@@ -249,6 +280,11 @@ function hijackRouteController(original, type) {
             type: type,
             hook: hookName,
             name: this.route.name,
+            path: this.path
+          });
+          zone.setInfo('irHook', {
+            name: this.route.name,
+            hook: hookName,
             path: this.path
           });
           hookFn.apply(this, args);
