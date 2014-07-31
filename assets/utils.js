@@ -172,6 +172,44 @@ function hijackSessionSet(original, type) {
   }
 }
 
+var TemplateCoreFunctions = ['prototype', '__makeView', '__render'];
+
+function hijackTemplateHelpers(template, templateName) {
+  _.each(template, function (helperFn, name) {
+    if(helperFn
+      && template.hasOwnProperty(name)
+      && typeof helperFn === 'function'
+      && _.indexOf(TemplateCoreFunctions, name) === -1) {
+      // Assuming the value is a template helper
+      template[name] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        zone.setInfo('templateHelper', {name: name, template: templateName});
+        return helperFn.apply(this, args);
+      }
+    }
+  });
+}
+
+function hijackNewTemplateHelpers(original, templateName) {
+  return function (dict) {
+    dict && _.each(dict, function (helperFn, name) {
+      if(helperFn
+        && typeof helperFn === 'function'
+        && _.indexOf(TemplateCoreFunctions, name) === -1) {
+        // Assuming the value is a template helper
+        dict[name] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          zone.setInfo('templateHelper', {name: name, template: templateName});
+          return helperFn.apply(this, args);
+        }
+      }
+    });
+
+    var args = Array.prototype.slice.call(arguments);
+    return original.apply(this, args);
+  }
+}
+
 //--------------------------------------------------------------------------\\
 
 var routerEvents = [

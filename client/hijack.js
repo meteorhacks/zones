@@ -45,11 +45,17 @@ if(Template.prototype) {
 /**
  * Hijack each templates rendered handler to add template name to owner info
  */
+var CoreTemplates = ['prototype', '__body__', '__dynamic', '__dynamicWithDataContext', '__IronDefaultLayout__'];
 Meteor.startup(function () {
   _(Template).each(function (template, name) {
-    if(typeof template === 'object' && typeof template.rendered == 'function') {
-      var original = template.rendered;
-      template.rendered = hijackTemplateRendered(original, name);
+    if(typeof template === 'object') {
+
+      // hijack template helpers including 'rendered'
+      if(_.indexOf(CoreTemplates, name) === -1) {
+        hijackTemplateHelpers(template, name);
+        template.helpers = hijackNewTemplateHelpers(template.helpers, name);
+      }
+
     }
   });
 });
