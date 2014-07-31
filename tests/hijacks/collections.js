@@ -23,9 +23,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        method: {
+        'Connection.apply': {
+          type: 'Connection.apply',
           name: '/test-collection/insert',
           args: [
             [{_id: 'foo', bar: 'baz'}],
@@ -76,9 +77,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        method: {
+        'Connection.apply': {
+          type: 'Connection.apply',
           name: '/test-collection/update',
           args: [
             [{_id: 'foo'}, {$set: {bar: 'bat'}}, {}],
@@ -143,9 +145,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        method: {
+        'Connection.apply': {
+          type: 'Connection.apply',
           name: '/test-collection/update',
           args: [
             [
@@ -216,9 +219,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        method: {
+        'Connection.apply': {
+          type: 'Connection.apply',
           name: '/test-collection/update',
           args: [
             [
@@ -279,9 +283,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        method: {
+        'Connection.apply': {
+          type: 'Connection.apply',
           name: '/test-collection/remove',
           args: [
             [{_id: 'foo'}],

@@ -21,9 +21,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        subscription: {
+        'Meteor.subscribe': {
+          type: 'Meteor.subscribe',
           name: 'test-ready',
           args: ['arg1', 'arg2'],
         }
@@ -67,9 +68,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        subscription: {
+        'Meteor.subscribe': {
+          type: 'Meteor.subscribe',
           name: 'test-ready',
           args: ['arg1', 'arg2'],
           callbackType: 'onReady'
@@ -116,9 +118,10 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.parent.id];
+      var info = zone.infoMap[zone.id];
       var expectedInfo = {
-        subscription: {
+        'Meteor.subscribe': {
+          type: 'Meteor.subscribe',
           name: 'test-error',
           args: ['arg1', 'arg2'],
           callbackType: 'onError'
