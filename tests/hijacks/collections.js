@@ -237,8 +237,6 @@ Tinytest.addAsync(
 
       test.equal('object', typeof info);
       test.equal(expectedInfo, info);
-      console.log('-- expectedInfo', expectedInfo)
-      console.log('-- info', info)
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
