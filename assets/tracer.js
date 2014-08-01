@@ -95,6 +95,7 @@ extendZone({
     // but actions may happen even after the zone completed
     // and we are not interested about those
     if(this._events) {
+      event.time = this.getTime();
       this._events.push(event);
     }
   },
