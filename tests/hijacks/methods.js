@@ -1,6 +1,6 @@
 
 Tinytest.addAsync(
-  'Hijacks - Methods - Meteor.call - owner',
+  'Hijacks - Methods - default',
   function (test, next) {
     Zone.Reporters.removeAll();
     Zone.Reporters.add('test-reporter', function (zone) {
@@ -22,15 +22,19 @@ Tinytest.addAsync(
       // test whether zone has correct info
       // the parent zone contains method info
       var info = zone.infoMap[zone.id];
+      console.log('-- info', info)
       var expectedInfo = {
         'Meteor.call': {
           type: 'Meteor.call',
           name: 'test',
+          // time: 123,
           args: ['arg1', 'arg2'],
         }
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Meteor.call'].time);
+      delete info['Meteor.call'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue

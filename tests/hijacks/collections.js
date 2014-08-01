@@ -28,6 +28,7 @@ Tinytest.addAsync(
         'Connection.apply': {
           type: 'Connection.apply',
           name: '/test-collection/insert',
+          // time: 123,
           args: [
             [{_id: 'foo', bar: 'baz'}],
             {returnStubValue: true}
@@ -36,6 +37,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -82,6 +85,7 @@ Tinytest.addAsync(
         'Connection.apply': {
           type: 'Connection.apply',
           name: '/test-collection/update',
+          // time: 123,
           args: [
             [{_id: 'foo'}, {$set: {bar: 'bat'}}, {}],
             {returnStubValue: true}
@@ -90,6 +94,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -150,6 +156,7 @@ Tinytest.addAsync(
         'Connection.apply': {
           type: 'Connection.apply',
           name: '/test-collection/update',
+          // time: 123,
           args: [
             [
               {_id: 'foo'},
@@ -166,6 +173,13 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      var insertedId = info['Connection.apply'].args[0][2].insertedId;
+      if(insertedId) {
+        test.equal('string', typeof insertedId);
+        delete info['Connection.apply'].args[0][2].insertedId;
+      }
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -224,6 +238,7 @@ Tinytest.addAsync(
         'Connection.apply': {
           type: 'Connection.apply',
           name: '/test-collection/update',
+          // time: 123,
           args: [
             [
               {_id: 'foo'},
@@ -240,6 +255,13 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      var insertedId = info['Connection.apply'].args[0][2].insertedId;
+      if(insertedId) {
+        test.equal('string', typeof insertedId);
+        delete info['Connection.apply'].args[0][2].insertedId;
+      }
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -288,6 +310,7 @@ Tinytest.addAsync(
         'Connection.apply': {
           type: 'Connection.apply',
           name: '/test-collection/remove',
+          // time: 123,
           args: [
             [{_id: 'foo'}],
             {returnStubValue: true}
@@ -296,6 +319,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue

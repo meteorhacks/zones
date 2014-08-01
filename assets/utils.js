@@ -14,7 +14,8 @@ function hijackConnection(original, type) {
         var ownerInfo = {type: type, name: methodName, args: methodArgs};
         args[args.length - 1] = function (argument) {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo(type, ownerInfo);
+          var zoneInfo = {type: type, name: methodName, args: methodArgs};
+          zone.setInfo(type, zoneInfo);
           return callback.apply(this, args);
         }
         args[args.length - 1] = zone.bind(args[args.length - 1], false, ownerInfo, pickAllArgs);
@@ -43,7 +44,8 @@ function hijackSubscribe(originalFunction, type) {
         var ownerInfo = {type: type, name: subName, args: subArgs};
         args[args.length - 1] = function (argument) {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo(type, ownerInfo);
+          var zoneInfo = {type: type, name: subName, args: subArgs};
+          zone.setInfo(type, zoneInfo);
           return callback.apply(this, args);
         }
         args[args.length - 1] = zone.bind(args[args.length - 1], false, ownerInfo, pickAllArgs);
@@ -53,7 +55,8 @@ function hijackSubscribe(originalFunction, type) {
           if(typeof callback[funName] === "function") {
             callback[funName] = function (argument) {
               var args = Array.prototype.slice.call(arguments);
-              zone.setInfo(type, ownerInfo);
+              var zoneInfo = {type: type, name: subName, args: subArgs, callbackType: funName};
+              zone.setInfo(type, zoneInfo);
               return callback.apply(this, args);
             }
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
@@ -96,7 +99,12 @@ function hijackCursor(Cursor) {
             };
             options[funName] = function () {
               var args = Array.prototype.slice.call(arguments);
-              zone.setInfo(type, ownerInfo);
+              var zoneInfo = {
+                type: 'MongoCursor.' + type,
+                callbackType: funName,
+                collection: self.collection.name
+              };
+              zone.setInfo(type, zoneInfo);
               return callback.apply(this, args);
             }
             options[funName] = zone.bind(options[funName], false, ownerInfo, pickAllArgs);
@@ -132,7 +140,8 @@ function hijackComponentEvents(original) {
         var args = Array.prototype.slice.call(arguments);
         var ownerInfo = {type: type, event: target, template: name};
         zone.owner = ownerInfo;
-        zone.setInfo(type, ownerInfo);
+        var zoneInfo = {type: type, event: target, template: name};
+        zone.setInfo(type, zoneInfo);
         handler.apply(this, args);
       };
     }

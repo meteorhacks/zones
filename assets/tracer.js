@@ -100,8 +100,8 @@ extendZone({
   },
 
   setInfo: function(key, value) {
-    console.log(key, value);
     if(this._info) {
+      value.time = this.getTime();
       this._info[key] = value;
     }
   },
@@ -148,6 +148,10 @@ extendZone({
       boundZone.dequeueTask(func);
       return result;
     }, false, ownerInfo, validateArgs);
+  },
+
+  getTime: function () {
+    return Date.now();
   }
 });
 

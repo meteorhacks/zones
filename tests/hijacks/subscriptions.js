@@ -26,11 +26,14 @@ Tinytest.addAsync(
         'Meteor.subscribe': {
           type: 'Meteor.subscribe',
           name: 'test-ready',
+          // time: 123,
           args: ['arg1', 'arg2'],
         }
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Meteor.subscribe'].time);
+      delete info['Meteor.subscribe'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -73,12 +76,15 @@ Tinytest.addAsync(
         'Meteor.subscribe': {
           type: 'Meteor.subscribe',
           name: 'test-ready',
+          // time: 123,
           args: ['arg1', 'arg2'],
           callbackType: 'onReady'
         }
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Meteor.subscribe'].time);
+      delete info['Meteor.subscribe'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -123,12 +129,15 @@ Tinytest.addAsync(
         'Meteor.subscribe': {
           type: 'Meteor.subscribe',
           name: 'test-error',
+          // time: 123,
           args: ['arg1', 'arg2'],
           callbackType: 'onError'
         }
       };
 
       test.equal('object', typeof info);
+      test.equal('number', typeof info['Meteor.subscribe'].time);
+      delete info['Meteor.subscribe'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
