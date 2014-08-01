@@ -161,19 +161,21 @@ function hijackSessionSet(original, type) {
 var routerEvents = [
   'onRun', 'onData', 'onBeforeAction', 'onAfterAction', 'onStop', 'waitOn',
   'load', 'before', 'after', 'unload',
+  'data', 'waitOn'
 ];
 
 function hijackRouterConfigure(original, type) {
-  return function (dict) {
+  return function (options) {
     var args = Array.prototype.slice.call(arguments);
-    routerEvents.forEach(function (hookName) {
-      var hookFn = dict[hookName];
+    options && routerEvents.forEach(function (hookName) {
+      var hookFn = options[hookName];
       if(typeof hookFn === 'function') {
-        dict[hookName] = function () {
+        options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hookFn.apply(this, args);
@@ -197,6 +199,7 @@ function hijackRouterGlobalHooks(Router, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hook.apply(this, args);
@@ -214,7 +217,7 @@ function hijackRouterOptions(original, type) {
     var args = Array.prototype.slice.call(arguments);
 
     // hijack options
-    routerEvents.forEach(function (hookName) {
+    options && routerEvents.forEach(function (hookName) {
       var hookFn = options[hookName];
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
@@ -222,6 +225,7 @@ function hijackRouterOptions(original, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hookFn.apply(this, args);
@@ -236,7 +240,7 @@ function hijackRouterOptions(original, type) {
 function hijackRouteController(original, type) {
   return function (options) {
     var args = Array.prototype.slice.call(arguments);
-    routerEvents.forEach(function (hookName) {
+    options && routerEvents.forEach(function (hookName) {
       var hookFn = options[hookName];
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
@@ -244,6 +248,7 @@ function hijackRouteController(original, type) {
           zone.addEvent({
             type: type,
             hook: hookName,
+            name: this.route.name,
             path: this.path
           });
           hookFn.apply(this, args);
