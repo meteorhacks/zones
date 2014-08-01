@@ -2,6 +2,7 @@
 // see /assests/utils.js
 Zone.fromCall = new Meteor.EnvironmentVariable();
 Zone.fromObserve = new Meteor.EnvironmentVariable();
+Zone.notFromForEach = new Meteor.EnvironmentVariable();
 
 var ConnectionProto = getConnectionProto();
 
