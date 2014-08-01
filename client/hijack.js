@@ -8,26 +8,30 @@ var ConnectionProto = getConnectionProto();
 /*
  * Hijack method calls
  */
-var original_Connection_apply = ConnectionProto.apply;
-ConnectionProto.apply = hijackConnection(original_Connection_apply, 'Connection.apply');
+ConnectionProto.apply = hijackConnection(
+  ConnectionProto.apply,
+  'Connection.apply'
+);
 
-// for better stackTraces
-var originalMeteorCall = Meteor.call;
-Meteor.call = hijackConnection(originalMeteorCall, 'Meteor.call');
+/**
+ * For better stackTraces
+ */
+Meteor.call = hijackConnection(Meteor.call, 'Meteor.call');
 
 /*
  * Hijack DDP subscribe method
  * Used when connecting to external DDP servers
  */
-var original_Connection_subscribe = ConnectionProto.subscribe;
-ConnectionProto.subscribe = hijackSubscribe(original_Connection_subscribe, 'Connection.subscribe');
+ConnectionProto.subscribe = hijackSubscribe(
+  ConnectionProto.subscribe,
+  'Connection.subscribe'
+);
 
 /**
  * Hijack Meteor.subscribe because Meteor.subscribe binds to
  * Connection.subscribe before the hijack
  */
-var original_Meteor_subscribe = Meteor.subscribe;
-Meteor.subscribe = hijackSubscribe(original_Meteor_subscribe, 'Meteor.subscribe');
+Meteor.subscribe = hijackSubscribe(Meteor.subscribe, 'Meteor.subscribe');
 
 hijackCursor(LocalCollection.Cursor.prototype);
 
@@ -43,32 +47,36 @@ if(Template.prototype) {
 }
 
 /**
+ * Hijack global template helpers using `UI.registerHelper`
+ */
+hijackGlobalHelpers(UI._globalHelpers);
+
+/**
  * Hijack each templates rendered handler to add template name to owner info
  */
 var CoreTemplates = ['prototype', '__body__', '__dynamic', '__dynamicWithDataContext', '__IronDefaultLayout__'];
 Meteor.startup(function () {
   _(Template).each(function (template, name) {
     if(typeof template === 'object') {
-
       // hijack template helpers including 'rendered'
       if(_.indexOf(CoreTemplates, name) === -1) {
         hijackTemplateHelpers(template, name);
         template.helpers = hijackNewTemplateHelpers(template.helpers, name);
       }
-
     }
   });
 });
 
-var originalSessionSet = Session.set;
-Session.set = hijackSessionSet(originalSessionSet, 'Session.set');
+/**
+ * Hijack Session.set to add events
+ */
+Session.set = hijackSessionSet(Session.set, 'Session.set');
 
 /**
  * Hijack Deps.autorun to set correct zone owner type
  * Otherwise these will be setTimeout
  */
-var originalDepsFlush = Deps.flush;
-Deps.flush = hijackDepsFlush(originalDepsFlush, 'Deps.flush');
+Deps.flush = hijackDepsFlush(Deps.flush, 'Deps.flush');
 
 /**
  * Hijack IronRouter if it's available

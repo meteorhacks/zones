@@ -55,6 +55,7 @@ function addPackageFiles(api) {
     'client/hijack.js'
   ], 'client');
 
+  api.use('underscore', 'client');
   api.use('ui', 'client');
   api.use('templating', 'client');
   api.use('deps', 'client');

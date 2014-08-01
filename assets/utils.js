@@ -205,6 +205,32 @@ function hijackHelper(hookFn, name, templateName) {
   }
 }
 
+function hijackGlobalHelpers(helpers) {
+  var _ = Package.underscore._;
+  _(helpers || {}).each(function (helperFn, name) {
+    helpers[name] = hijackGlobalHelper(helperFn, name)
+  });
+}
+
+function hijackGlobalHelper(helperFn, name) {
+  var _ = Package.underscore._;
+  if(helperFn
+    && typeof helperFn === 'function'
+    && _.indexOf(TemplateCoreFunctions, name) === -1) {
+    return function () {
+      var args = Array.prototype.slice.call(arguments);
+      zone.setInfo('Global.helper', {name: name});
+      var result = helperFn.apply(this, args);
+      if(result && typeof result.observe === 'function') {
+        result._avoidZones = true;
+      }
+      return result;
+    }
+  } else {
+    return helperFn;
+  }
+}
+
 //--------------------------------------------------------------------------\\
 
 var routerEvents = [
@@ -232,11 +258,7 @@ function hijackRouterConfigure(original, type) {
             hook: hookName,
             path: this.path
           });
-          var result = hookFn.apply(this, args);
-          if(!result || typeof result.observe !== 'function') {
-            result._avoidZones = true;
-          }
-          return result;
+          return hookFn.apply(this, args);
         }
       }
     });
@@ -247,6 +269,10 @@ function hijackRouterConfigure(original, type) {
 function hijackRouterGlobalHooks(Router, type) {
   routerEvents.forEach(function (hookName) {
     var hookFn = Router[hookName];
+    /**
+     * Example
+     * Router.onBeforeAction( handler-function, options )
+     */
     Router[hookName] = function (hook, options) {
       var args = Array.prototype.slice.call(arguments);
       var hook = args[0];
@@ -265,14 +291,10 @@ function hijackRouterGlobalHooks(Router, type) {
             hook: hookName,
             path: this.path
           });
-          hook.apply(this, args);
+          return hook.apply(this, args);
         }
       }
-      var result = hookFn.apply(this, args);
-      if(!result || typeof result.observe !== 'function') {
-        result._avoidZones = true;
-      }
-      return result;
+      return hookFn.apply(this, args);
     }
   });
 
@@ -300,11 +322,7 @@ function hijackRouterOptions(original, type) {
             hook: hookName,
             path: this.path
           });
-          var result = hookFn.apply(this, args);
-          if(!result || typeof result.observe !== 'function') {
-            result._avoidZones = true;
-          }
-          return result;
+          return hookFn.apply(this, args);
         }
       }
     });
@@ -332,11 +350,10 @@ function hijackRouteController(original, type) {
             hook: hookName,
             path: this.path
           });
-          hookFn.apply(this, args);
+          return hookFn.apply(this, args);
         }
       }
     });
-    zone.addEvent({type: type});
     return original.apply(this, args);
   }
 }
