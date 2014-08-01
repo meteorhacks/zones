@@ -10,11 +10,14 @@ Tinytest.addAsync(
       var expectedOwner = {
         args: ['arg1', 'arg2'],
         name: 'test',
+        // time: 123,
         type: 'Meteor.call',
         // zoneId: 123
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expectedOwner, owner);

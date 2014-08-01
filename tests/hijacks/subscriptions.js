@@ -15,6 +15,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
@@ -65,6 +67,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
@@ -118,6 +122,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
