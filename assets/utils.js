@@ -171,45 +171,37 @@ var TemplateCoreFunctions = ['prototype', '__makeView', '__render'];
 
 function hijackTemplateHelpers(template, templateName) {
   _.each(template, function (helperFn, name) {
-    if(helperFn
-      && template.hasOwnProperty(name)
-      && typeof helperFn === 'function'
-      && _.indexOf(TemplateCoreFunctions, name) === -1) {
-      // Assuming the value is a template helper
-      template[name] = function () {
-        var args = Array.prototype.slice.call(arguments);
-        zone.setInfo('Template.helper', {name: name, template: templateName});
-        var result = helperFn.apply(this, args);
-        if(result && typeof result.observe === 'function') {
-          result._doNotTrack = true;
-        }
-        return result;
-      }
-    }
+    template[name] = hijackHelper(helperFn, name, templateName);
   });
 }
 
 function hijackNewTemplateHelpers(original, templateName) {
   return function (dict) {
     dict && _.each(dict, function (helperFn, name) {
-      if(helperFn
-        && typeof helperFn === 'function'
-        && _.indexOf(TemplateCoreFunctions, name) === -1) {
-        // Assuming the value is a template helper
-        dict[name] = function () {
-          var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('Template.helper', {name: name, template: templateName});
-          var result = helperFn.apply(this, args);
-          if(result && typeof result.observe === 'function') {
-            result._doNotTrack = true;
-          }
-          return result;
-        }
-      }
+      dict[name] = hijackHelper(helperFn, name, templateName);
     });
 
     var args = Array.prototype.slice.call(arguments);
     return original.apply(this, args);
+  }
+}
+
+function hijackHelper(helperFn, name, templateName) {
+  if(helperFn
+    && typeof helperFn === 'function'
+    && _.indexOf(TemplateCoreFunctions, name) === -1) {
+    // Assuming the value is a template helper
+    return function () {
+      var args = Array.prototype.slice.call(arguments);
+      zone.setInfo('Template.helper', {name: name, template: templateName});
+      var result = helperFn.apply(this, args);
+      if(result && typeof result.observe === 'function') {
+        result._doNotTrack = true;
+      }
+      return result;
+    }
+  } else {
+    return helperFn;
   }
 }
 
