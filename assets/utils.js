@@ -170,15 +170,15 @@ function hijackSessionSet(original, type) {
 var TemplateCoreFunctions = ['prototype', '__makeView', '__render'];
 
 function hijackTemplateHelpers(template, templateName) {
-  _.each(template, function (helperFn, name) {
-    template[name] = hijackHelper(helperFn, name, templateName);
+  _.each(template, function (hookFn, name) {
+    template[name] = hijackHelper(hookFn, name, templateName);
   });
 }
 
 function hijackNewTemplateHelpers(original, templateName) {
   return function (dict) {
-    dict && _.each(dict, function (helperFn, name) {
-      dict[name] = hijackHelper(helperFn, name, templateName);
+    dict && _.each(dict, function (hookFn, name) {
+      dict[name] = hijackHelper(hookFn, name, templateName);
     });
 
     var args = Array.prototype.slice.call(arguments);
@@ -186,22 +186,22 @@ function hijackNewTemplateHelpers(original, templateName) {
   }
 }
 
-function hijackHelper(helperFn, name, templateName) {
-  if(helperFn
-    && typeof helperFn === 'function'
+function hijackHelper(hookFn, name, templateName) {
+  if(hookFn
+    && typeof hookFn === 'function'
     && _.indexOf(TemplateCoreFunctions, name) === -1) {
     // Assuming the value is a template helper
     return function () {
       var args = Array.prototype.slice.call(arguments);
       zone.setInfo('Template.helper', {name: name, template: templateName});
-      var result = helperFn.apply(this, args);
+      var result = hookFn.apply(this, args);
       if(result && typeof result.observe === 'function') {
         result._avoidZones = true;
       }
       return result;
     }
   } else {
-    return helperFn;
+    return hookFn;
   }
 }
 
@@ -232,7 +232,7 @@ function hijackRouterConfigure(original, type) {
             hook: hookName,
             path: this.path
           });
-          var result = helperFn.apply(this, args);
+          var result = hookFn.apply(this, args);
           if(!result || typeof result.observe !== 'function') {
             result._avoidZones = true;
           }
@@ -268,7 +268,7 @@ function hijackRouterGlobalHooks(Router, type) {
           hook.apply(this, args);
         }
       }
-      var result = helperFn.apply(this, args);
+      var result = hookFn.apply(this, args);
       if(!result || typeof result.observe !== 'function') {
         result._avoidZones = true;
       }
@@ -300,7 +300,7 @@ function hijackRouterOptions(original, type) {
             hook: hookName,
             path: this.path
           });
-          var result = helperFn.apply(this, args);
+          var result = hookFn.apply(this, args);
           if(!result || typeof result.observe !== 'function') {
             result._avoidZones = true;
           }
