@@ -88,7 +88,7 @@ function hijackCursor(Cursor) {
       // if so, we don't need to track this request
       var isFromObserve = Zone.fromObserve.get();
 
-      if(!this._doNotTrack && !isFromObserve && options) {
+      if(!this._avoidZones && !isFromObserve && options) {
         callbacks.forEach(function (funName) {
           var callback = options[funName];
           if(typeof callback === 'function') {
@@ -196,7 +196,7 @@ function hijackHelper(helperFn, name, templateName) {
       zone.setInfo('Template.helper', {name: name, template: templateName});
       var result = helperFn.apply(this, args);
       if(result && typeof result.observe === 'function') {
-        result._doNotTrack = true;
+        result._avoidZones = true;
       }
       return result;
     }
@@ -234,7 +234,7 @@ function hijackRouterConfigure(original, type) {
           });
           var result = helperFn.apply(this, args);
           if(!result || typeof result.observe !== 'function') {
-            result._doNotTrack = true;
+            result._avoidZones = true;
           }
           return result;
         }
@@ -270,7 +270,7 @@ function hijackRouterGlobalHooks(Router, type) {
       }
       var result = helperFn.apply(this, args);
       if(!result || typeof result.observe !== 'function') {
-        result._doNotTrack = true;
+        result._avoidZones = true;
       }
       return result;
     }
@@ -302,7 +302,7 @@ function hijackRouterOptions(original, type) {
           });
           var result = helperFn.apply(this, args);
           if(!result || typeof result.observe !== 'function') {
-            result._doNotTrack = true;
+            result._avoidZones = true;
           }
           return result;
         }
