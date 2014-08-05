@@ -116,6 +116,7 @@ extendZone({
   },
 
   setOwner: function(ownerInfo) {
+    ownerInfo.time = this.getTime();
     this.owner = ownerInfo;
   },
 
@@ -131,7 +132,6 @@ extendZone({
     if(ownerInfo) {
       zone.setOwner(ownerInfo);
       ownerInfo.zoneId = zone.id;
-      this.addEvent(ownerInfo);
     }
 
     return function zoneBoundFn() {
