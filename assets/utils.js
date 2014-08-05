@@ -92,11 +92,12 @@ function hijackCursor(Cursor) {
         && typeof callback === 'function') {
         args[0] = function (doc, index) {
           var args = Array.prototype.slice.call(arguments);
+          var ownerInfo = {type: type, collection: self.collection.name};
           var zoneInfo = {type: type, collection: self.collection.name};
           zoneInfo.document = doc;
           zoneInfo.index = index;
           zone.setInfo(type, zoneInfo);
-          callback = zone.bind(callback, false, {}. pickAllArgs);
+          callback = zone.bind(callback, false, ownerInfo. pickAllArgs);
           return callback.apply(this, args);
         };
       }
