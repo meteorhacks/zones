@@ -116,6 +116,7 @@ extendZone({
   },
 
   setOwner: function(ownerInfo) {
+    ownerInfo.time = this.getTime();
     this.owner = ownerInfo;
   },
 
