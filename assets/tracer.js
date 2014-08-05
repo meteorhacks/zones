@@ -131,7 +131,6 @@ extendZone({
     if(ownerInfo) {
       zone.setOwner(ownerInfo);
       ownerInfo.zoneId = zone.id;
-      this.addEvent(ownerInfo);
     }
 
     return function zoneBoundFn() {
