@@ -90,10 +90,13 @@ function hijackCursor(Cursor) {
       if(!this._avoidZones
         && !notFromForEach
         && typeof callback === 'function') {
-        args[0] = function () {
+        args[0] = function (doc, index) {
           var args = Array.prototype.slice.call(arguments);
           var zoneInfo = {type: type, collection: self.collection.name};
+          zoneInfo.document = doc;
+          zoneInfo.index = index;
           zone.setInfo(type, zoneInfo);
+          callback = zone.bind(callback, false, {}. pickAllArgs);
           return callback.apply(this, args);
         };
       }
