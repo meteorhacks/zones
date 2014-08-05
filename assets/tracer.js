@@ -95,13 +95,14 @@ extendZone({
     // but actions may happen even after the zone completed
     // and we are not interested about those
     if(this._events) {
+      event.time = this.getTime();
       this._events.push(event);
     }
   },
 
   setInfo: function(key, value) {
-    console.log(key, value);
     if(this._info) {
+      value.time = this.getTime();
       this._info[key] = value;
     }
   },
@@ -148,6 +149,10 @@ extendZone({
       boundZone.dequeueTask(func);
       return result;
     }, false, ownerInfo, validateArgs);
+  },
+
+  getTime: function () {
+    return Date.now();
   }
 });
 

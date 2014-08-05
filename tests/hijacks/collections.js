@@ -17,9 +17,31 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.id];
+      var expectedInfo = {
+        'Connection.apply': {
+          type: 'Connection.apply',
+          name: '/test-collection/insert',
+          // time: 123,
+          args: [
+            [{_id: 'foo', bar: 'baz'}],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -54,9 +76,31 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.id];
+      var expectedInfo = {
+        'Connection.apply': {
+          type: 'Connection.apply',
+          name: '/test-collection/update',
+          // time: 123,
+          args: [
+            [{_id: 'foo'}, {$set: {bar: 'bat'}}, {}],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -101,6 +145,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       if(owner.args[0][2].insertedId) {
@@ -108,6 +154,39 @@ Tinytest.addAsync(
       }
       delete owner.args[0][2].insertedId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.id];
+      var expectedInfo = {
+        'Connection.apply': {
+          type: 'Connection.apply',
+          name: '/test-collection/update',
+          // time: 123,
+          args: [
+            [
+              {_id: 'foo'},
+              {$set: {bar: 'bat'}},
+              {
+                _returnObject: true,
+                upsert: true,
+                // insertedId: 'asd'
+              }
+            ],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      var insertedId = info['Connection.apply'].args[0][2].insertedId;
+      if(insertedId) {
+        test.equal('string', typeof insertedId);
+        delete info['Connection.apply'].args[0][2].insertedId;
+      }
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -150,6 +229,8 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       if(owner.args[0][2].insertedId) {
@@ -157,6 +238,39 @@ Tinytest.addAsync(
       }
       delete owner.args[0][2].insertedId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.id];
+      var expectedInfo = {
+        'Connection.apply': {
+          type: 'Connection.apply',
+          name: '/test-collection/update',
+          // time: 123,
+          args: [
+            [
+              {_id: 'foo'},
+              {$set: {bar: 'bat'}},
+              {
+                _returnObject: true,
+                upsert: true,
+                // insertedId: 'asd'
+              }
+            ],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      var insertedId = info['Connection.apply'].args[0][2].insertedId;
+      if(insertedId) {
+        test.equal('string', typeof insertedId);
+        delete info['Connection.apply'].args[0][2].insertedId;
+      }
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -193,9 +307,31 @@ Tinytest.addAsync(
       };
 
       test.equal('object', typeof owner);
+      test.equal('number', typeof owner.time);
+      delete owner.time;
       test.equal('number', typeof owner.zoneId);
       delete owner.zoneId;
       test.equal(expected, owner);
+
+      // test whether zone has correct info
+      // the parent zone contains method info
+      var info = zone.infoMap[zone.id];
+      var expectedInfo = {
+        'Connection.apply': {
+          type: 'Connection.apply',
+          name: '/test-collection/remove',
+          // time: 123,
+          args: [
+            [{_id: 'foo'}],
+            {returnStubValue: true}
+          ],
+        }
+      };
+
+      test.equal('object', typeof info);
+      test.equal('number', typeof info['Connection.apply'].time);
+      delete info['Connection.apply'].time;
+      test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
