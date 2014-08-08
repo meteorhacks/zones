@@ -270,7 +270,7 @@ function hijackRouterConfigure(original, type) {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
           zone.setInfo('irHook', {
-            name: this.route.name,
+            name: this.route && this.route.name,
             hook: hookName,
             path: this.path
           });
@@ -297,7 +297,7 @@ function hijackRouterGlobalHooks(Router, type) {
         args[0] = function () {
           var args = Array.prototype.slice.call(arguments);
           zone.setInfo('irHook', {
-            name: this.route.name,
+            name: this.route && this.route.name,
             hook: hookName,
             path: this.path
           });
@@ -322,7 +322,7 @@ function hijackRouterOptions(original, type) {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
           zone.setInfo('irHook', {
-            name: this.route.name,
+            name: this.route && this.route.name,
             hook: hookName,
             path: this.path
           });
@@ -344,7 +344,7 @@ function hijackRouteController(original, type) {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
           zone.setInfo('irHook', {
-            name: this.route.name,
+            name: this.route && this.route.name,
             hook: hookName,
             path: this.path
           });
