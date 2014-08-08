@@ -1,3 +1,4 @@
+Inject = Package['inject-initial'].Inject;
 
 var scripts = [
   '/packages/zones/assets/utils.js',
@@ -13,4 +14,14 @@ scripts.forEach(function(script) {
   html+= '<script src="' + script + '" type="text/javascript"></script>';
 });
 
-Package['inject-initial'].Inject.rawHead("zones", html);
+Inject.rawHead("zones", html);
+
+Meteor.methods({
+  'zone-on': function () {
+    Inject.rawHeads['zones'] = html;
+  },
+
+  'zone-off': function () {
+    Inject.rawHeads['zones'] = '';
+  }
+});

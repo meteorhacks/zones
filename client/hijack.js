@@ -1,3 +1,8 @@
+// Hijack only if zone is available
+if(!window.Zone) {
+  return;
+}
+
 // some EnvironmentVariables to optimize tracking
 // see /assests/utils.js
 Zone.fromCall = new Meteor.EnvironmentVariable();
