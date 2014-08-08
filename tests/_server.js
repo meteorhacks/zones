@@ -1,5 +1,13 @@
 
 Meteor.methods({
+  'zone-on': function () {
+    Zones.enable();
+  },
+
+  'zone-off': function () {
+    Zones.disable();
+  },
+
   'test-method': function () {
     return;
   }
