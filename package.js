@@ -12,6 +12,8 @@ Package.on_use(function (api) {
   if(ironRouterExists()) {
     api.use(['iron-router'], ['client', 'server']);
   }
+
+  api.export('Zones', 'server');
 });
 
 Package.on_test(function (api) {
