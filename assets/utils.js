@@ -220,6 +220,7 @@ function hijackHelper(hookFn, name, templateName) {
   if(hookFn
     && typeof hookFn === 'function'
     && _.indexOf(TemplateCoreFunctions, name) === -1) {
+    zone.setInfo('Template.helper', {name: name, template: templateName});
     // Assuming the value is a template helper
     return function () {
       var args = Array.prototype.slice.call(arguments);
