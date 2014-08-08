@@ -24,7 +24,7 @@ Tinytest.addAsync(
 
       // test whether zone has correct info
       // the parent zone contains method info
-      var info = zone.infoMap[zone.id];
+      var info = zone.infoMap[zone.parent.id];
       var expectedInfo = {
         'Meteor.call': {
           type: 'Meteor.call',
