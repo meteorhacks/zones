@@ -41,7 +41,7 @@ Tinytest.addAsync(
         // append the html to a temporary container to search
         var scripts = $('<div>').append(html).find('script');
         scripts = Array.prototype.slice.call(scripts);
-        scripts = scripts.slice(0, 6).map(getSrc);
+        scripts = scripts.map(getSrc);
         scripts.forEach(function (path) {
           test.equal(SCRIPTS.indexOf(path), -1);
         });
@@ -54,6 +54,8 @@ Tinytest.addAsync(
             scripts = Array.prototype.slice.call(scripts);
             scripts = scripts.slice(0, 6).map(getSrc);
             test.equal(SCRIPTS, scripts);
+
+            // end the test
             next();
           });
         });
