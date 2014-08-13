@@ -80,7 +80,22 @@ function hijackCursor(Cursor) {
     'removed', 'movedBefore'
   ]);
 
-  ['fetch', 'forEach', 'map'].forEach(function (name) {
+  // hijack Cursor.fetch
+  var originalCursorFetch = Cursor.fetch;
+  Cursor.fetch = function () {
+    var self = this;
+    var args = Array.prototype.slice.call(arguments);
+    var type = 'MongoCursor.fetch';
+    if(zone && !this._avoidZones) {
+      var zoneInfo = {type: type, collection: this.collection.name};
+      zone.setInfo(type, zoneInfo)
+    };
+    return Zone.notFromForEach.withValue(true, function() {
+      return originalCursorFetch.apply(self, args);
+    });
+  };
+
+  ['forEach', 'map'].forEach(function (name) {
     var original = Cursor[name];
     Cursor[name] = function (callback, thisArg) {
       var self = thisArg || this;
