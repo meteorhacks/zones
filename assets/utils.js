@@ -249,6 +249,14 @@ function hijackGlobalHelpers(helpers) {
   });
 }
 
+function hijackNewGlobalHelpers (original) {
+  return function (name, helperFn) {
+    var args = Array.prototype.slice.call(arguments);
+    args[1] = hijackGlobalHelper(helperFn, name);
+    return original.apply(this, args);
+  };
+}
+
 function hijackGlobalHelper(helperFn, name) {
   var _ = Package.underscore._;
   if(helperFn
