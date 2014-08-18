@@ -268,10 +268,13 @@ function hijackGlobalHelper(helperFn, name) {
     && _.indexOf(TemplateCoreFunctions, name) === -1) {
     return function () {
       var args = Array.prototype.slice.call(arguments);
-      zone.setInfo('Global.helper', {name: name});
       var result = helperFn.apply(this, args);
       if(result && typeof result.observe === 'function') {
         result._avoidZones = true;
+        zone.setInfo('Global.helper', {name: name, args: args});
+      } else {
+        var zoneInfo = {name: name, args: args, result: result};
+        zone.setInfo('Global.helper', zoneInfo);
       }
       return result;
     }
