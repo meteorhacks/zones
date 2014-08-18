@@ -173,7 +173,10 @@ function hijackComponentEvents(original) {
     var self = this;
     var name = this.__templateName || this.kind.split('_')[1];
     for (var target in dict) {
-      dict[target] = prepareHandler(dict[target], target);
+      var handler = dict[target];
+      if (typeof handler === 'function') {
+        dict[target] = prepareHandler(handler, target);
+      }
     }
 
     return original.call(this, dict);
