@@ -114,7 +114,7 @@ function hijackCursor(Cursor) {
           var ownerInfo = {type: type, collection: collection, query: query};
           var zoneInfo = {type: type, collection: collection, query: query, document: doc, index: index};
           zone.setInfo(type, zoneInfo);
-          callback = zone.bind(callback, false, ownerInfo. pickAllArgs);
+          callback = zone.bind(callback, false, ownerInfo, pickAllArgs);
           return callback.apply(this, args);
         };
       }
