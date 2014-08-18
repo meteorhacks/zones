@@ -133,6 +133,7 @@ function hijackCursor(Cursor) {
     var original = Cursor[type];
     Cursor[type] = function (options) {
       var self = this;
+      var eventType = 'MongoCursor.' + type;
       // check this request comes from an observer call
       // if so, we don't need to track this request
       var isFromObserve = Zone.fromObserve.get();
@@ -142,12 +143,13 @@ function hijackCursor(Cursor) {
           var callback = options[funName];
           if(typeof callback === 'function') {
             var ownerInfo = {
-              type: 'MongoCursor.' + type,
+              type: eventType,
               callbackType: funName,
               collection: self.collection.name
             };
-            zone.setInfo(type, {
-              type: 'MongoCursor.' + type,
+            zone.setInfo(eventType, {
+              type: eventType,
+              callbackType: funName,
               collection: self.collection.name
             });
             options[funName] = zone.bind(callback, false, ownerInfo, pickAllArgs);
