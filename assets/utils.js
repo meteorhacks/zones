@@ -299,7 +299,7 @@ function hijackRouterConfigure(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
@@ -326,7 +326,7 @@ function hijackRouterGlobalHooks(Router, type) {
         // override hook function before sending to iron-router
         args[0] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
@@ -351,7 +351,7 @@ function hijackRouterOptions(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
@@ -373,7 +373,7 @@ function hijackRouteController(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
