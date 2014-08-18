@@ -87,7 +87,9 @@ function hijackCursor(Cursor) {
     var args = Array.prototype.slice.call(arguments);
     var type = 'MongoCursor.fetch';
     if(zone && !this._avoidZones) {
-      var zoneInfo = {type: type, collection: this.collection.name};
+      var collection = this.collection && this.collection.name;
+      var query = this.matcher && this.matcher._selector;
+      var zoneInfo = {type: type, collection: collection, query: query};
       zone.setInfo(type, zoneInfo)
     };
     return Zone.notFromForEach.withValue(true, function() {
@@ -107,8 +109,10 @@ function hijackCursor(Cursor) {
         && typeof callback === 'function') {
         args[0] = function (doc, index) {
           var args = Array.prototype.slice.call(arguments);
-          var ownerInfo = {type: type, collection: self.collection.name};
-          var zoneInfo = {type: type, collection: self.collection.name, document: doc, index: index};
+          var collection = self.collection && self.collection.name;
+          var query = self.matcher && self.matcher._selector;
+          var ownerInfo = {type: type, collection: collection, query: query};
+          var zoneInfo = {type: type, collection: collection, query: query, document: doc, index: index};
           zone.setInfo(type, zoneInfo);
           callback = zone.bind(callback, false, ownerInfo. pickAllArgs);
           return callback.apply(this, args);
