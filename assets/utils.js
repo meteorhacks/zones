@@ -87,7 +87,9 @@ function hijackCursor(Cursor) {
     var args = Array.prototype.slice.call(arguments);
     var type = 'MongoCursor.fetch';
     if(zone && !this._avoidZones) {
-      var zoneInfo = {type: type, collection: this.collection.name};
+      var collection = this.collection && this.collection.name;
+      var query = this.matcher && this.matcher._selector;
+      var zoneInfo = {type: type, collection: collection, query: query};
       zone.setInfo(type, zoneInfo)
     };
     return Zone.notFromForEach.withValue(true, function() {
@@ -107,10 +109,12 @@ function hijackCursor(Cursor) {
         && typeof callback === 'function') {
         args[0] = function (doc, index) {
           var args = Array.prototype.slice.call(arguments);
-          var ownerInfo = {type: type, collection: self.collection.name};
-          var zoneInfo = {type: type, collection: self.collection.name, document: doc, index: index};
+          var collection = self.collection && self.collection.name;
+          var query = self.matcher && self.matcher._selector;
+          var ownerInfo = {type: type, collection: collection, query: query};
+          var zoneInfo = {type: type, collection: collection, query: query, document: doc, index: index};
           zone.setInfo(type, zoneInfo);
-          callback = zone.bind(callback, false, ownerInfo. pickAllArgs);
+          callback = zone.bind(callback, false, ownerInfo, pickAllArgs);
           return callback.apply(this, args);
         };
       }
@@ -129,6 +133,7 @@ function hijackCursor(Cursor) {
     var original = Cursor[type];
     Cursor[type] = function (options) {
       var self = this;
+      var eventType = 'MongoCursor.' + type;
       // check this request comes from an observer call
       // if so, we don't need to track this request
       var isFromObserve = Zone.fromObserve.get();
@@ -138,12 +143,13 @@ function hijackCursor(Cursor) {
           var callback = options[funName];
           if(typeof callback === 'function') {
             var ownerInfo = {
-              type: 'MongoCursor.' + type,
+              type: eventType,
               callbackType: funName,
               collection: self.collection.name
             };
-            zone.setInfo(type, {
-              type: 'MongoCursor.' + type,
+            zone.setInfo(eventType, {
+              type: eventType,
+              callbackType: funName,
               collection: self.collection.name
             });
             options[funName] = zone.bind(callback, false, ownerInfo, pickAllArgs);
@@ -169,7 +175,10 @@ function hijackComponentEvents(original) {
     var self = this;
     var name = this.__templateName || this.kind.split('_')[1];
     for (var target in dict) {
-      dict[target] = prepareHandler(dict[target], target);
+      var handler = dict[target];
+      if (typeof handler === 'function') {
+        dict[target] = prepareHandler(handler, target);
+      }
     }
 
     return original.call(this, dict);
@@ -249,6 +258,14 @@ function hijackGlobalHelpers(helpers) {
   });
 }
 
+function hijackNewGlobalHelpers (original) {
+  return function (name, helperFn) {
+    var args = Array.prototype.slice.call(arguments);
+    args[1] = hijackGlobalHelper(helperFn, name);
+    return original.apply(this, args);
+  };
+}
+
 function hijackGlobalHelper(helperFn, name) {
   var _ = Package.underscore._;
   if(helperFn
@@ -256,10 +273,13 @@ function hijackGlobalHelper(helperFn, name) {
     && _.indexOf(TemplateCoreFunctions, name) === -1) {
     return function () {
       var args = Array.prototype.slice.call(arguments);
-      zone.setInfo('Global.helper', {name: name});
       var result = helperFn.apply(this, args);
       if(result && typeof result.observe === 'function') {
         result._avoidZones = true;
+        zone.setInfo('Global.helper', {name: name, args: args});
+      } else {
+        var zoneInfo = {name: name, args: args, result: result};
+        zone.setInfo('Global.helper', zoneInfo);
       }
       return result;
     }
@@ -284,7 +304,7 @@ function hijackRouterConfigure(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
@@ -311,7 +331,7 @@ function hijackRouterGlobalHooks(Router, type) {
         // override hook function before sending to iron-router
         args[0] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
@@ -336,7 +356,7 @@ function hijackRouterOptions(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path
@@ -358,7 +378,7 @@ function hijackRouteController(original, type) {
       if(typeof hookFn === 'function') {
         options[hookName] = function () {
           var args = Array.prototype.slice.call(arguments);
-          zone.setInfo('irHook', {
+          zone.setInfo(type, {
             name: this.route && this.route.name,
             hook: hookName,
             path: this.path

@@ -56,6 +56,7 @@ if(Template.prototype) {
  * Hijack global template helpers using `UI.registerHelper`
  */
 hijackGlobalHelpers(UI._globalHelpers);
+UI.registerHelper = hijackNewGlobalHelpers(UI.registerHelper);
 
 /**
  * Hijack each templates rendered handler to add template name to owner info
