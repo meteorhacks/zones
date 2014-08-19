@@ -13,5 +13,6 @@ if(  window.JSON
   && JSON.parse
   && JSON.stringify) {
   Zone.init();
+  Zone.inited = true;
   restoreOriginals();
 }

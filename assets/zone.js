@@ -646,9 +646,11 @@ Zone.patchRegisterElement = function () {
 }
 
 Zone.eventNames = 'copy cut paste abort blur focus canplay canplaythrough change click contextmenu dblclick drag dragend dragenter dragleave dragover dragstart drop durationchange emptied ended input invalid keydown keypress keyup load loadeddata loadedmetadata loadstart mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup pause play playing progress ratechange reset scroll seeked seeking select show stalled submit suspend timeupdate volumechange waiting mozfullscreenchange mozfullscreenerror mozpointerlockchange mozpointerlockerror error webglcontextrestored webglcontextlost webglcontextcreationerror'.split(' ');
-Zone.onEventNames = Zone.eventNames.map(function (property) {
-  return 'on' + property;
-});
+
+Zone.onEventNames = [];
+for(var i=0, l=Zone.eventNames.length; i<l; ++i) {
+  Zone.onEventNames[i] = 'on' + Zone.eventNames[i];
+}
 
 Zone.init = function init () {
   if (typeof module !== 'undefined' && module && module.exports) {
