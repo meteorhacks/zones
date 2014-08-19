@@ -29,8 +29,8 @@ extendZone({
     zone.createdAt = Date.now();
     zone.id = nextZoneId();
 
-    if(!zone._firstParent) {
-      zone._firstParent = zone;
+    if(!zone.firstParent) {
+      zone.firstParent = zone;
     }
 
     // setting depth and handling maxDepth
@@ -170,7 +170,7 @@ extendZone({
   _resetDepthAndRun: function(fn, applyTo, applyWith) {
     try {
       window._oldZone = window.zone;
-      window.zone = this._firstParent || window._oldZone;
+      window.zone = this.firstParent || window._oldZone;
       return fn.apply(applyTo, applyWith);
     } catch(ex) {
       if(this.onError) {
