@@ -144,11 +144,13 @@ function hijackCursor(Cursor) {
           if(typeof callback === 'function') {
             var ownerInfo = {
               type: eventType,
+              query: self.matcher._selector,
               callbackType: funName,
               collection: self.collection.name
             };
             zone.setInfo(eventType, {
               type: eventType,
+              query: self.matcher._selector,
               callbackType: funName,
               collection: self.collection.name
             });
