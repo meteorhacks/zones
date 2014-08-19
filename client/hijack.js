@@ -1,5 +1,5 @@
 // Hijack only if zone is available
-if(!window.Zone) {
+if(!window.Zone || !window.Zone.inited) {
   return;
 }
 

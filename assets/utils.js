@@ -395,12 +395,13 @@ function hijackRouteController(original, type) {
 
 var originalFunctions = [];
 function backupOriginals(obj, methodNames) {
-  if(obj && Array.isArray(methodNames)) {
-    var backup = {obj: obj};
-    backup.methods = {};
-    methodNames.forEach(function (name) {
+  if(obj && methodNames && methodNames.length) {
+    var backup = {obj: obj, methods: {}};
+    for(var i=0, l=methodNames.length; i<l; ++i) {
+      var name = methodNames[i];
       backup.methods[name] = obj[name];
-    });
+    }
+
     originalFunctions.push(backup);
   };
 }
