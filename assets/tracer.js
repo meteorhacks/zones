@@ -25,7 +25,10 @@ extendZone({
 
   fork: function (locals) {
     var zone = this._fork(locals);
-    zone.currentStack = getStacktrace();
+    if(Zone.collectAllStacks) {
+      zone.currentStack = getStacktrace();
+    };
+
     zone.createdAt = Date.now();
     zone.id = nextZoneId();
 
@@ -157,7 +160,7 @@ extendZone({
   bindOnce: function (func, ownerInfo, validateArgs) {
     var boundZone = this;
     return this.bind(function() {
-      var result = func.apply(this, arguments);
+      var result = Zone._apply(func, this, arguments);
       boundZone.dequeueTask(func);
       return result;
     }, false, ownerInfo, validateArgs);
