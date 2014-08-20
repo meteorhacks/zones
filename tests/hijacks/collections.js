@@ -27,28 +27,19 @@ Tinytest.addAsync(
       // the parent zone contains method info
       var info = zone.infoMap[zone.parent.id];
       var expectedInfo = {
-        'Connection.apply': {
-          type: 'Connection.apply',
-          name: '/test-collection/insert',
-          // time: 123,
-          args: [
-            [{_id: 'foo', bar: 'baz'}],
-            {returnStubValue: true}
-          ],
-        },
-        'MongoCursor.fetch': {
-          type: 'MongoCursor.fetch',
-          collection: 'test-collection',
-          query: {_id: 'foo'},
-          // time: 123
-        }
+        type: 'Connection.apply',
+        name: '/test-collection/insert',
+        // time: 123,
+        args: [
+          [{_id: 'foo', bar: 'baz'}],
+          {returnStubValue: true}
+        ],
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
-      delete info['MongoCursor.fetch'].time;
-      test.equal(expectedInfo, info);
+      test.equal(expectedInfo, info['Connection.apply']);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -93,21 +84,19 @@ Tinytest.addAsync(
       // the parent zone contains method info
       var info = zone.infoMap[zone.parent.id];
       var expectedInfo = {
-        'Connection.apply': {
-          type: 'Connection.apply',
-          name: '/test-collection/update',
-          // time: 123,
-          args: [
-            [{_id: 'foo'}, {$set: {bar: 'bat'}}, {}],
-            {returnStubValue: true}
-          ],
-        }
+        type: 'Connection.apply',
+        name: '/test-collection/update',
+        // time: 123,
+        args: [
+          [{_id: 'foo'}, {$set: {bar: 'bat'}}, {}],
+          {returnStubValue: true}
+        ],
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
-      test.equal(expectedInfo, info);
+      test.equal(expectedInfo, info['Connection.apply']);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -166,41 +155,32 @@ Tinytest.addAsync(
       // the parent zone contains method info
       var info = zone.infoMap[zone.parent.id];
       var expectedInfo = {
-        'Connection.apply': {
-          type: 'Connection.apply',
-          name: '/test-collection/update',
-          // time: 123,
-          args: [
-            [
-              {_id: 'foo'},
-              {$set: {bar: 'bat'}},
-              {
-                _returnObject: true,
-                upsert: true,
-                // insertedId: 'asd'
-              }
-            ],
-            {returnStubValue: true}
+        type: 'Connection.apply',
+        name: '/test-collection/update',
+        // time: 123,
+        args: [
+          [
+            {_id: 'foo'},
+            {$set: {bar: 'bat'}},
+            {
+              _returnObject: true,
+              upsert: true,
+              // insertedId: 'asd'
+            }
           ],
-        },
-        'MongoCursor.fetch': {
-          type: 'MongoCursor.fetch',
-          collection: 'test-collection',
-          query: {_id: 'foo'},
-          // time: 123
-        }
+          {returnStubValue: true}
+        ],
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
-      delete info['MongoCursor.fetch'].time;
       var insertedId = info['Connection.apply'].args[0][2].insertedId;
       if(insertedId) {
         test.equal('string', typeof insertedId);
         delete info['Connection.apply'].args[0][2].insertedId;
       }
-      test.equal(expectedInfo, info);
+      test.equal(expectedInfo, info['Connection.apply']);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -257,41 +237,32 @@ Tinytest.addAsync(
       // the parent zone contains method info
       var info = zone.infoMap[zone.parent.id];
       var expectedInfo = {
-        'Connection.apply': {
-          type: 'Connection.apply',
-          name: '/test-collection/update',
-          // time: 123,
-          args: [
-            [
-              {_id: 'foo'},
-              {$set: {bar: 'bat'}},
-              {
-                _returnObject: true,
-                upsert: true,
-                // insertedId: 'asd'
-              }
-            ],
-            {returnStubValue: true}
+        type: 'Connection.apply',
+        name: '/test-collection/update',
+        // time: 123,
+        args: [
+          [
+            {_id: 'foo'},
+            {$set: {bar: 'bat'}},
+            {
+              _returnObject: true,
+              upsert: true,
+              // insertedId: 'asd'
+            }
           ],
-        },
-        'MongoCursor.fetch': {
-          type: 'MongoCursor.fetch',
-          collection: 'test-collection',
-          query: {_id: 'foo'},
-          // time: 123
-        }
+          {returnStubValue: true}
+        ],
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
-      delete info['MongoCursor.fetch'].time;
       var insertedId = info['Connection.apply'].args[0][2].insertedId;
       if(insertedId) {
         test.equal('string', typeof insertedId);
         delete info['Connection.apply'].args[0][2].insertedId;
       }
-      test.equal(expectedInfo, info);
+      test.equal(expectedInfo, info['Connection.apply']);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
@@ -338,21 +309,19 @@ Tinytest.addAsync(
       // the parent zone contains method info
       var info = zone.infoMap[zone.parent.id];
       var expectedInfo = {
-        'Connection.apply': {
-          type: 'Connection.apply',
-          name: '/test-collection/remove',
-          // time: 123,
-          args: [
-            [{_id: 'foo'}],
-            {returnStubValue: true}
-          ],
-        }
+        type: 'Connection.apply',
+        name: '/test-collection/remove',
+        // time: 123,
+        args: [
+          [{_id: 'foo'}],
+          {returnStubValue: true}
+        ],
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
-      test.equal(expectedInfo, info);
+      test.equal(expectedInfo, info['Connection.apply']);
 
       // reset zone for other tests and continue
       Zone.Reporters.add(Zone.longStackTrace);
