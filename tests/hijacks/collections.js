@@ -35,12 +35,19 @@ Tinytest.addAsync(
             [{_id: 'foo', bar: 'baz'}],
             {returnStubValue: true}
           ],
+        },
+        'MongoCursor.fetch': {
+          type: 'MongoCursor.fetch',
+          collection: 'test-collection',
+          query: {_id: 'foo'},
+          // time: 123
         }
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
+      delete info['MongoCursor.fetch'].time;
       test.equal(expectedInfo, info);
 
       // reset zone for other tests and continue
@@ -175,12 +182,19 @@ Tinytest.addAsync(
             ],
             {returnStubValue: true}
           ],
+        },
+        'MongoCursor.fetch': {
+          type: 'MongoCursor.fetch',
+          collection: 'test-collection',
+          query: {_id: 'foo'},
+          // time: 123
         }
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
+      delete info['MongoCursor.fetch'].time;
       var insertedId = info['Connection.apply'].args[0][2].insertedId;
       if(insertedId) {
         test.equal('string', typeof insertedId);
@@ -259,12 +273,19 @@ Tinytest.addAsync(
             ],
             {returnStubValue: true}
           ],
+        },
+        'MongoCursor.fetch': {
+          type: 'MongoCursor.fetch',
+          collection: 'test-collection',
+          query: {_id: 'foo'},
+          // time: 123
         }
       };
 
       test.equal('object', typeof info);
       test.equal('number', typeof info['Connection.apply'].time);
       delete info['Connection.apply'].time;
+      delete info['MongoCursor.fetch'].time;
       var insertedId = info['Connection.apply'].args[0][2].insertedId;
       if(insertedId) {
         test.equal('string', typeof insertedId);
