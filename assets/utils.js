@@ -55,9 +55,10 @@ function hijackSubscribe(originalFunction, type) {
           if(typeof callback[funName] === "function") {
             var zoneInfo = {type: type, name: subName, args: subArgs, callbackType: funName};
             zone.setInfo(type, zoneInfo);
+            var originalCallback = callback[funName];
             callback[funName] = function (argument) {
               var args = Array.prototype.slice.call(arguments);
-              return Zone._apply(callback, this, args);
+              return Zone._apply(originalCallback, this, args);
             }
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
