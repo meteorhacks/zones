@@ -99,12 +99,13 @@ Zone.prototype = {
     } catch (e) {
       if (zone.onError) {
         zone.onError(e);
+        this.afterTask();
+        window.zone = oldZone;
       } else {
+        this.afterTask();
+        window.zone = oldZone;
         throw e;
       }
-    } finally {
-      this.afterTask();
-      window.zone = oldZone;
     }
     return result;
   },
