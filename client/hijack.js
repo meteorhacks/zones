@@ -119,8 +119,10 @@ function getCurrentUrlOrigin() {
 // So we are killing Meteor._debug
 var originalMeteorDebug = Meteor._debug;
 Meteor._debug = function(message, stack) {
+  // some developers send error object as the second parameter
+  // so we need to gaurd against that
   var err = new Error(message);
-  err.stack = stack;
+  err.stack = (stack instanceof Error)? stack.stack: stack;
   if(zone) {
     throw err;
   } else {

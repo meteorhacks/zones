@@ -34,6 +34,7 @@ Zone.Reporters.longStackTrace = function (zone) {
   var currZone = zone;
   var totalAsyncTime = 0;
 
+  trace.push("Error: " + zone.erroredStack._e.message);
   trace.push(zone.erroredStack.get());
 
   while (currZone && currZone.currentStack) {
