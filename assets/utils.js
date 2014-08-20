@@ -16,7 +16,7 @@ function hijackConnection(original, type) {
         zone.setInfo(type, zoneInfo);
         args[args.length - 1] = function (argument) {
           var args = Array.prototype.slice.call(arguments);
-          return callback.apply(this, args);
+          return Zone._apply(callback, this, args);
         }
         args[args.length - 1] = zone.bind(args[args.length - 1], false, ownerInfo, pickAllArgs);
       }
@@ -25,10 +25,10 @@ function hijackConnection(original, type) {
     if(type == "Meteor.call") {
       // make sure this won't get tracked another time
       return Zone.fromCall.withValue(true, function() {
-        return original.apply(self, args);
+        return Zone._apply(original, self, args);
       });
     } else {
-      return original.apply(this, args);
+      return Zone._apply(original, this, args);
     }
   }
 }
@@ -46,7 +46,7 @@ function hijackSubscribe(originalFunction, type) {
         zone.setInfo(type, zoneInfo);
         args[args.length - 1] = function (argument) {
           var args = Array.prototype.slice.call(arguments);
-          return callback.apply(this, args);
+          return Zone._apply(callback, this, args);
         }
         args[args.length - 1] = zone.bind(args[args.length - 1], false, ownerInfo, pickAllArgs);
       } else if(callback) {
@@ -57,14 +57,14 @@ function hijackSubscribe(originalFunction, type) {
             zone.setInfo(type, zoneInfo);
             callback[funName] = function (argument) {
               var args = Array.prototype.slice.call(arguments);
-              return callback.apply(this, args);
+              return Zone._apply(callback, this, args);
             }
             callback[funName] = zone.bind(callback[funName], false, ownerInfo, pickAllArgs);
           }
         })
       }
     }
-    return originalFunction.apply(this, args);
+    return Zone._apply(originalFunction, this, args);
   }
 }
 
@@ -93,7 +93,7 @@ function hijackCursor(Cursor) {
       zone.setInfo(type, zoneInfo)
     };
     return Zone.notFromForEach.withValue(true, function() {
-      return originalCursorFetch.apply(self, args);
+      return Zone._apply(originalCursorFetch, self, args);
     });
   };
 
@@ -115,16 +115,16 @@ function hijackCursor(Cursor) {
           var zoneInfo = {type: type, collection: collection, query: query, document: doc, index: index};
           zone.setInfo(type, zoneInfo);
           callback = zone.bind(callback, false, ownerInfo, pickAllArgs);
-          return callback.apply(this, args);
+          return Zone._apply(callback, this, args);
         };
       }
 
       if(name !== 'forEach') {
         return Zone.notFromForEach.withValue(true, function() {
-          return original.apply(self, args);
+          return Zone._apply(original, self, args);
         });
       } else {
-        return original.apply(self, args);
+        return Zone._apply(original, self, args);
       }
     }
   });
@@ -188,7 +188,7 @@ function hijackComponentEvents(original) {
         var args = Array.prototype.slice.call(arguments);
         var ownerInfo = {type: type, event: target, template: name};
         zone.owner = ownerInfo;
-        handler.apply(this, args);
+        Zone._apply(handler, this, args);
       };
     }
 
@@ -201,7 +201,7 @@ function hijackDepsFlush(original, type) {
     if(zone.owner && window.zone.owner.type == 'setTimeout') {
       zone.owner = {type: type};
     }
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   }
 }
 
@@ -209,7 +209,7 @@ function hijackSessionSet(original, type) {
   return function () {
     var args = Array.prototype.slice.call(arguments);
     zone.addEvent({type: type, key: args[0], value: args[1]});
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   }
 }
 
@@ -228,7 +228,7 @@ function hijackNewTemplateHelpers(original, templateName) {
     });
 
     var args = Array.prototype.slice.call(arguments);
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   }
 }
 
@@ -240,7 +240,7 @@ function hijackHelper(hookFn, name, templateName) {
     return function () {
       var args = Array.prototype.slice.call(arguments);
       zone.setInfo('Template.helper', {name: name, template: templateName});
-      var result = hookFn.apply(this, args);
+      var result = Zone._apply(hookFn, this, args);
       if(result && typeof result.observe === 'function') {
         result._avoidZones = true;
       }
@@ -262,7 +262,7 @@ function hijackNewGlobalHelpers (original) {
   return function (name, helperFn) {
     var args = Array.prototype.slice.call(arguments);
     args[1] = hijackGlobalHelper(helperFn, name);
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   };
 }
 
@@ -273,7 +273,7 @@ function hijackGlobalHelper(helperFn, name) {
     && _.indexOf(TemplateCoreFunctions, name) === -1) {
     return function () {
       var args = Array.prototype.slice.call(arguments);
-      var result = helperFn.apply(this, args);
+      var result = Zone._apply(helperFn, this, args);
       if(result && typeof result.observe === 'function') {
         result._avoidZones = true;
         zone.setInfo('Global.helper', {name: name, args: args});
@@ -309,11 +309,11 @@ function hijackRouterConfigure(original, type) {
             hook: hookName,
             path: this.path
           });
-          return hookFn.apply(this, args);
+          return Zone._apply(hookFn, this, args);
         }
       }
     });
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   }
 }
 
@@ -336,10 +336,10 @@ function hijackRouterGlobalHooks(Router, type) {
             hook: hookName,
             path: this.path
           });
-          return hook.apply(this, args);
+          return Zone._apply(hook, this, args);
         }
       }
-      return hookFn.apply(this, args);
+      return Zone._apply(hookFn, this, args);
     }
   });
 
@@ -361,12 +361,12 @@ function hijackRouterOptions(original, type) {
             hook: hookName,
             path: this.path
           });
-          return hookFn.apply(this, args);
+          return Zone._apply(hookFn, this, args);
         }
       }
     });
 
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   }
 }
 
@@ -383,11 +383,11 @@ function hijackRouteController(original, type) {
             hook: hookName,
             path: this.path
           });
-          return hookFn.apply(this, args);
+          return Zone._apply(hookFn, this, args);
         }
       }
     });
-    return original.apply(this, args);
+    return Zone._apply(original, this, args);
   }
 }
 

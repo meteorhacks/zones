@@ -145,7 +145,7 @@ extendZone({
   bindOnce: function (func, ownerInfo, validateArgs) {
     var boundZone = this;
     return this.bind(function() {
-      var result = func.apply(this, arguments);
+      var result = Zone._apply(func, this, arguments);
       boundZone.dequeueTask(func);
       return result;
     }, false, ownerInfo, validateArgs);

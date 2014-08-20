@@ -29,8 +29,8 @@ function Zone(parentZone, data) {
     } else if (property[0] === '+') {
       if (parentZone[_property]) {
         zone[_property] = function () {
-          var result = parentZone[_property].apply(this, arguments);
-          data[property].apply(this, arguments);
+          var result = Zone._apply(parentZone[_property], this, arguments);
+          Zone._apply(data[property], this, arguments);
           return result;
         };
       } else {
@@ -41,8 +41,8 @@ function Zone(parentZone, data) {
     } else if (property[0] === '-') {
       if (parentZone[_property]) {
         zone[_property] = function () {
-          data[property].apply(this, arguments);
-          return parentZone[_property].apply(this, arguments);
+          Zone._apply(data[property], this, arguments);
+          return Zone._apply(parentZone[_property], this, arguments);
         };
       } else {
         zone[_property] = data[property];
@@ -79,7 +79,7 @@ Zone.prototype = {
   bindOnce: function (fn) {
     var boundZone = this;
     return this.bind(function () {
-      var result = fn.apply(this, arguments);
+      var result = Zone._apply(fn, this, arguments);
       boundZone.dequeueTask(fn);
       return result;
     });
@@ -95,7 +95,7 @@ Zone.prototype = {
 
     try {
       this.beforeTask();
-      result = fn.apply(applyTo, applyWith);
+      result = Zone._apply(fn, applyTo, applyWith);
     } catch (e) {
       if (zone.onError) {
         zone.onError(e);
@@ -135,11 +135,11 @@ Zone.patchSetClearFn = function (obj, fnNames) {
           var id;
           arguments[0] = function () {
             delete ids[id];
-            return fn.apply(this, arguments);
+            return Zone._apply(fn, this, arguments);
           };
           var ownerInfo = {type: setName, timeout: arguments[1]};
           var args = Zone.bindArguments(arguments, ownerInfo);
-          id = delegate.apply(obj, args);
+          id = Zone._apply(delegate, obj, args);
           ids[id] = true;
           return id;
         };
@@ -148,11 +148,11 @@ Zone.patchSetClearFn = function (obj, fnNames) {
           var id;
           arguments[0] = function () {
             delete ids[id];
-            return fn.apply(this, arguments);
+            return Zone._apply(fn, this, arguments);
           };
           var ownerInfo = {type: setName, timeout: arguments[1]};
           var args = Zone.bindArgumentsOnce(arguments, ownerInfo);
-          id = delegate.apply(obj, args);
+          id = Zone._apply(delegate, obj, args);
           ids[id] = true;
           return id;
         };
@@ -160,7 +160,7 @@ Zone.patchSetClearFn = function (obj, fnNames) {
 
 
       obj[setName] = function () {
-        return zone[setName].apply(this, arguments);
+        return Zone._apply(zone[setName], this, arguments);
       };
 
       var clearDelegate = obj[clearName];
@@ -170,11 +170,11 @@ Zone.patchSetClearFn = function (obj, fnNames) {
           delete ids[id];
           zone.dequeueTask();
         }
-        return clearDelegate.apply(this, arguments);
+        return Zone._apply(clearDelegate, this, arguments);
       };
 
       obj[clearName] = function () {
-        return zone[clearName].apply(this, arguments);
+        return Zone._apply(zone[clearName], this, arguments);
       };
     }
   });
@@ -188,14 +188,14 @@ Zone.patchSetFn = function (obj, fnNames) {
     if (delegate) {
       zone[name] = function (fn) {
         arguments[0] = function () {
-          return fn.apply(this, arguments);
+          return Zone._apply(fn, this, arguments);
         };
         var args = Zone.bindArgumentsOnce(arguments);
-        return delegate.apply(obj, args);
+        return Zone._apply(delegate, obj, args);
       };
 
       obj[name] = function () {
-        return zone[name].apply(this, arguments);
+        return Zone._apply(zone[name], this, arguments);
       };
     }
   });
@@ -207,7 +207,7 @@ Zone.patchPrototype = function (obj, fnNames, kind) {
     if (delegate) {
       obj[name] = function () {
         var ownerInfo = {type: kind + "." + name};
-        return delegate.apply(this, Zone.bindArguments(arguments, ownerInfo));
+        return Zone._apply(delegate, this, Zone.bindArguments(arguments, ownerInfo));
       };
     }
   });
@@ -236,11 +236,11 @@ Zone.patchableFn = function (obj, fnNames) {
   fnNames.forEach(function (name) {
     var delegate = obj[name];
     zone[name] = function () {
-      return delegate.apply(obj, arguments);
+      return Zone._apply(delegate, obj, arguments);
     };
 
     obj[name] = function () {
-      return zone[name].apply(this, arguments);
+      return Zone._apply(zone[name], this, arguments);
     };
   });
 };
@@ -329,13 +329,13 @@ Zone.patchEventTargetMethods = function (obj, thing) {
     }
 
     arguments[1] = fn._bound = zone.bind(fn, false, ownerInfo);
-    return addDelegate.apply(this, arguments);
+    return Zone._apply(addDelegate, this, arguments);
   };
 
   var removeDelegate = obj.removeEventListener;
   obj.removeEventListener = function (eventName, fn) {
     arguments[1] = arguments[1]._bound || arguments[1];
-    var result = removeDelegate.apply(this, arguments);
+    var result = Zone._apply(removeDelegate, this, arguments);
     zone.dequeueTask(fn);
     return result;
   };
@@ -484,7 +484,7 @@ Zone.patchClass = function (className) {
     (function (prop) {
       if (typeof instance[prop] === 'function') {
         window[className].prototype[prop] = function () {
-          return this._o[prop].apply(this._o, arguments);
+          return Zone._apply(this._o[prop], this._o, arguments);
         };
       } else {
         Object.defineProperty(window[className].prototype, prop, {
@@ -517,7 +517,7 @@ Zone.patchMutationObserverClass = function (className) {
   var instance = new OriginalClass(function () {});
 
   window[className].prototype.disconnect = function () {
-    var result = this._o.disconnect.apply(this._o, arguments);
+    var result = Zone._apply(this._o.disconnect, this._o, arguments);
     this._active && zone.dequeueTask();
     this._active = false;
     return result;
@@ -528,7 +528,7 @@ Zone.patchMutationObserverClass = function (className) {
       zone.enqueueTask();
     }
     this._active = true;
-    return this._o.observe.apply(this._o, arguments);
+    return Zone._apply(this._o.observe, this._o, arguments);
   };
 
   var prop;
@@ -539,7 +539,7 @@ Zone.patchMutationObserverClass = function (className) {
       }
       if (typeof instance[prop] === 'function') {
         window[className].prototype[prop] = function () {
-          return this._o[prop].apply(this._o, arguments);
+          return Zone._apply(this._o[prop], this._o, arguments);
         };
       } else {
         Object.defineProperty(window[className].prototype, prop, {
@@ -642,7 +642,7 @@ Zone.patchRegisterElement = function () {
         }
       }
     });
-    return _registerElement.apply(document, [name, opts]);
+    return Zone._apply(_registerElement, document, [name, opts]);
   };
 }
 
@@ -661,3 +661,18 @@ Zone.init = function init () {
   }
   Zone.patch();
 };
+
+Zone._apply = function apply(f, c, a) {
+  var a = [].slice.call(a);
+  switch (a.length) {
+    case 0: return f.call(c);
+    case 1: return f.call(c, a[0]);
+    case 2: return f.call(c, a[0], a[1]);
+    case 3: return f.call(c, a[0], a[1], a[2]);
+    case 4: return f.call(c, a[0], a[1], a[2], a[3]);
+    case 5: return f.call(c, a[0], a[1], a[2], a[3], a[4]);
+    case 6: return f.call(c, a[0], a[1], a[2], a[3], a[4], a[5]);
+    case 7: return f.call(c, a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+    default: return f.apply(c, a);
+  }
+}
