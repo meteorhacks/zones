@@ -14,6 +14,8 @@ extendZone = function(fields) {
 // extendZone with our own functionality
 
 extendZone({
+  maxDepth: 10,
+
   _fork: Zone.prototype.fork,
 
   onError: function (e) {
@@ -26,6 +28,16 @@ extendZone({
     zone.currentStack = getStacktrace();
     zone.createdAt = Date.now();
     zone.id = nextZoneId();
+
+    if(!zone.firstParent) {
+      zone.firstParent = zone;
+    }
+
+    // setting depth and handling maxDepth
+    zone.depth = (zone.depth)? zone.depth + 1 : 1;
+    if(zone.depth > zone.maxDepth) {
+      zone.run = zone._resetDepthAndRun;
+    }
 
     // when creating a new zone, it will use's parent zone as __proto__
     // that's why we can access ancesstor properties
@@ -153,6 +165,22 @@ extendZone({
 
   getTime: function () {
     return Date.now();
+  },
+
+  _resetDepthAndRun: function(fn, applyTo, applyWith) {
+    try {
+      window._oldZone = window.zone;
+      window.zone = this.firstParent || window._oldZone;
+      return fn.apply(applyTo, applyWith);
+    } catch(ex) {
+      if(this.onError) {
+        this.onError(ex);
+      } else {
+        throw ex;
+      }
+    } finally {
+      window.zone = window._oldZone;
+    }
   }
 });
 

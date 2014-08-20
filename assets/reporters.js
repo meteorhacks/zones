@@ -32,6 +32,7 @@ Zone.Reporters.run = function(zone) {
 Zone.Reporters.longStackTrace = function (zone) {
   var trace = [];
   var currZone = zone;
+  var prevZone;
   var totalAsyncTime = 0;
 
   trace.push("Error: " + zone.erroredStack._e.message);
@@ -39,12 +40,22 @@ Zone.Reporters.longStackTrace = function (zone) {
 
   while (currZone && currZone.currentStack) {
     var asyncTime = currZone.runAt - currZone.createdAt;
+  
+    if(prevZone) {
+      // sometimes, there are gaps betweens zones
+      // specially when handling with CPU intensive tasks and
+      // with handling maxDepth
+      var diff = prevZone.createdAt - currZone.runAt;
+      asyncTime += diff;
+    }
+
     if(asyncTime && asyncTime > 0) {
       totalAsyncTime += asyncTime;
       trace.push('\n> Before: ' + totalAsyncTime + 'ms (diff: ' + asyncTime + 'ms)');
     }
 
     trace.push(currZone.currentStack.get());
+    prevZone = currZone;
     currZone = currZone.parent;
   }
 
