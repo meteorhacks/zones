@@ -23,7 +23,10 @@ extendZone({
 
   fork: function (locals) {
     var zone = this._fork(locals);
-    zone.currentStack = getStacktrace();
+    if(Zone.collectAllStacks) {
+      zone.currentStack = getStacktrace();
+    };
+
     zone.createdAt = Date.now();
     zone.id = nextZoneId();
 

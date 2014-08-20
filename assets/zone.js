@@ -676,3 +676,5 @@ Zone._apply = function apply(f, c, a) {
     default: return f.apply(c, a);
   }
 }
+
+Zone.collectAllStacks = true;
