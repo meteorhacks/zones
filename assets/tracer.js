@@ -25,12 +25,17 @@ extendZone({
 
   fork: function (locals) {
     var zone = this._fork(locals);
+    
+    // we don't need to get currentStack from the parent
+    zone.currentStack = null;
+
     if(Zone.collectAllStacks) {
       zone.currentStack = getStacktrace();
-    };
+    }
 
     zone.createdAt = Date.now();
     zone.id = nextZoneId();
+    // zone.currentStack = null;
 
     if(!zone.firstParent) {
       zone.firstParent = zone;
