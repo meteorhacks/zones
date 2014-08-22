@@ -663,6 +663,10 @@ Zone.init = function init () {
 };
 
 Zone._apply = function apply(f, c, a) {
+  if(typeof f !== 'function') {
+    return;
+  }
+
   var a = [].slice.call(a);
   switch (a.length) {
     case 0: return f.call(c);
