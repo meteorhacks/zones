@@ -45,6 +45,9 @@ Tinytest.addAsync(
       next();
     });
 
+    // remove info from previous tests (if any)
+    zone._info = {};
+
     Meteor.call('test', 'arg1', 'arg2', function () {
       throw new Error('test-error');
     });

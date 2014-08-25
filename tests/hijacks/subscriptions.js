@@ -44,6 +44,9 @@ Tinytest.addAsync(
       next();
     });
 
+    // remove info from previous tests (if any)
+    zone._info = {};
+
     Meteor.subscribe('test-ready', 'arg1', 'arg2', function () {
       throw new Error('test-error');
     });
@@ -96,6 +99,9 @@ Tinytest.addAsync(
       Zone.Reporters.remove('test-reporter');
       next();
     });
+
+    // remove info from previous tests (if any)
+    zone._info = {};
 
     Meteor.subscribe('test-ready', 'arg1', 'arg2', {
       onReady: function () {
@@ -151,6 +157,9 @@ Tinytest.addAsync(
       Zone.Reporters.remove('test-reporter');
       next();
     });
+
+    // remove info from previous tests (if any)
+    zone._info = {};
 
     Meteor.subscribe('test-error', 'arg1', 'arg2', {
       onError: function () {
