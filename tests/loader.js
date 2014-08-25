@@ -25,9 +25,10 @@ Tinytest.add(
 Tinytest.add(
   'Loader - do not override some functions',
   function (test) {
-    var expected = 'function requestAnimationFrame() { [native code] }';
     if(requestAnimationFrame) {
-      test.equal(expected, requestAnimationFrame.toString());
+      var nativeCodeRegEx = /\[native code\]/gm;
+      var fnString = requestAnimationFrame.toString();
+      test.isTrue(nativeCodeRegEx.exec(fnString));
     }
   }
 );
