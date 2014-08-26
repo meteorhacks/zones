@@ -11,7 +11,8 @@ if(  window.JSON
   && Array.prototype.forEach
   && Array.prototype.map
   && JSON.parse
-  && JSON.stringify) {
+  && JSON.stringify
+  && !Zone.disabled) {
   Zone.init();
   Zone.inited = true;
   restoreOriginals();

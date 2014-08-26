@@ -1,16 +1,18 @@
 Inject = Package['inject-initial'].Inject;
 
-var SCRIPTS = [
-  '/packages/zones/assets/utils.js',
-  '/packages/zones/assets/before.js',
-  '/packages/zones/assets/zone.js',
-  '/packages/zones/assets/tracer.js',
-  '/packages/zones/assets/after.js',
-  '/packages/zones/assets/reporters.js',
+var assets = '/packages/zones/assets';
+var HTML = [
+  '<script src="'+assets+'/utils.js" type="text/javascript"></script>',
+  '<script src="'+assets+'/before.js" type="text/javascript"></script>',
+  '<script src="'+assets+'/zone.js" type="text/javascript"></script>',
+  '<!--[if lt IE 10 ]> <script>Zone.disabled=true</script> <![endif]-->',
+  '<script src="'+assets+'/tracer.js" type="text/javascript"></script>',
+  '<script src="'+assets+'/after.js" type="text/javascript"></script>',
+  '<script src="'+assets+'/reporters.js" type="text/javascript"></script>',
 ];
 
 Zones = {
-  html: SCRIPTS.map(toScriptTag).join('\n'),
+  html: HTML.join('\n'),
   enabled: true,
 };
 
@@ -25,9 +27,3 @@ Zones.disable = function () {
 Inject.rawHead('zones', function () {
   return Zones.enabled ? Zones.html : '';
 });
-
-//--------------------------------------------------------------------------\\
-
-function toScriptTag (path) {
-  return '<script src="' + path + '" type="text/javascript"></script>';
-};
