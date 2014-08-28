@@ -1,6 +1,13 @@
-Inject = Package['inject-initial'].Inject;
+// only Meteor < 0.9 has this tyoe of naming for packages
+if(Package['inject-initial']) {
+  Inject = Package['inject-initial'].Inject;
+  var assets = '/packages/zones/assets';
+} else {
+  Inject = Package['meteorhacks:inject-initial'].Inject;
+  var assets = '/packages/meteorhacks:zones/assets';
+}
 
-var assets = '/packages/zones/assets';
+
 var HTML = [
   '<script src="'+assets+'/utils.js" type="text/javascript"></script>',
   '<script src="'+assets+'/before.js" type="text/javascript"></script>',
