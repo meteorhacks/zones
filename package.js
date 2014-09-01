@@ -2,17 +2,14 @@ var fs = Npm.require('fs');
 var path = Npm.require('path');
 
 Package.describe({
-  summary: 'Zone.Js integration for meteor'
+  name: 'meteorhacks:zones',
+  summary: 'Zone.Js integration for meteor',
+  version: "1.0.0",
+  git: "https://github.com/meteorhacks/zones.git"
 });
 
 Package.on_use(function (api) {
   addPackageFiles(api);
-
-  // Add iron router only if it exists
-  if(ironRouterExists()) {
-    api.use(['iron-router'], ['client', 'server']);
-  }
-
   api.export('Zones', 'server');
 });
 
@@ -39,9 +36,25 @@ Package.on_test(function (api) {
     'tests/hijacks/subscriptions.js',
     'tests/hijacks/collections.js',
   ], 'client');
+
+  process.env['METEOR_ENV'] = 'test';
 });
 
 function addPackageFiles(api) {
+  // Add iron router only if it exists
+  if(api.versionsFrom) {
+    api.versionsFrom('METEOR@0.9.0');
+    api.use('meteorhacks:inject-initial@1.0.0', ['server']);
+    api.use(['iron:router'], ['client', 'server'], {weak: true});
+  } else {
+    api.use('inject-initial');
+    if(ironRouterExists()) {
+      // weak dependencies are not supported for packages before Meteor 0.9
+      // need to check whether iron-router exists and use it only if it does
+      api.use(['iron-router'], ['client', 'server']);
+    } 
+  }
+
   api.add_files([
     'assets/utils.js',
     'assets/before.js',
@@ -64,7 +77,6 @@ function addPackageFiles(api) {
   api.use('session', 'client');
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
-  api.use('inject-initial');
 }
 
 //--------------------------------------------------------------------------\\

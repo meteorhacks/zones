@@ -1,6 +1,20 @@
-Inject = Package['inject-initial'].Inject;
+// only Meteor < 0.9 has this tyoe of naming for packages
+if(Package['inject-initial']) {
+  Inject = Package['inject-initial'].Inject;
+  var assets = '/packages/zones/assets';
+} else {
+  // for Meteor 0.9 +
+  Inject = Package['meteorhacks:inject-initial'].Inject;
 
-var assets = '/packages/zones/assets';
+  // meteor test-packages prefix the package with `loca-test:` 
+  // that's why we need this hack
+  if(process.env['METEOR_ENV'] == 'test') {
+    var assets = '/packages/local-test:meteorhacks:zones/assets';
+  } else {
+    var assets = '/packages/meteorhacks:zones/assets';
+  }
+}
+
 var HTML = [
   '<script src="'+assets+'/utils.js" type="text/javascript"></script>',
   '<script src="'+assets+'/before.js" type="text/javascript"></script>',

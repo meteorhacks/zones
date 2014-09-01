@@ -25,7 +25,7 @@ extendZone({
 
   fork: function (locals) {
     var zone = this._fork(locals);
-    
+
     // we don't need to get currentStack from the parent
     zone.currentStack = null;
 
@@ -242,6 +242,6 @@ Stacktrace.prototype.get = function() {
 };
 
 Stacktrace.prototype.stackFramesFilter = function(line) {
-  var filterRegExp = /\/packages\/zones\/assets\/|^Error$/;
+  var filterRegExp = /\/packages\/(meteorhacks:zones|zones|local-test:meteorhacks:zones)\/assets\/|^Error$/;
   return !line.match(filterRegExp);
 };
