@@ -3,10 +3,10 @@ if(Package['inject-initial']) {
   Inject = Package['inject-initial'].Inject;
   var assets = '/packages/zones/assets';
 } else {
+  // for Meteor 0.9 +
   Inject = Package['meteorhacks:inject-initial'].Inject;
   var assets = '/packages/meteorhacks:zones/assets';
 }
-
 
 var HTML = [
   '<script src="'+assets+'/utils.js" type="text/javascript"></script>',
