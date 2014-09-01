@@ -45,7 +45,7 @@ function addPackageFiles(api) {
   if(api.versionsFrom) {
     api.versionsFrom('METEOR@0.9.0');
     api.use('meteorhacks:inject-initial@1.0.0', ['server']);
-    api.use(['iron:router'], ['client', 'server'], {weak: true});
+    api.use(['iron:router@0.9.0'], ['client', 'server'], {weak: true});
   } else {
     api.use('inject-initial');
     if(ironRouterExists()) {
