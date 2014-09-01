@@ -46,11 +46,13 @@ function addPackageFiles(api) {
     api.versionsFrom('METEOR@0.9.0');
     api.use('meteorhacks:inject-initial@1.0.0', ['server']);
     api.use(['iron:router'], ['client', 'server'], {weak: true});
-  } else if(ironRouterExists()) {
-    // weak dependencies are not supported for packages before Meteor 0.9
-    // need to check whether iron-router exists and use it only if it does
-    api.use(['iron-router'], ['client', 'server']);
+  } else {
     api.use('inject-initial');
+    if(ironRouterExists()) {
+      // weak dependencies are not supported for packages before Meteor 0.9
+      // need to check whether iron-router exists and use it only if it does
+      api.use(['iron-router'], ['client', 'server']);
+    } 
   }
 
   api.add_files([
