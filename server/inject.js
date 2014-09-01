@@ -5,7 +5,14 @@ if(Package['inject-initial']) {
 } else {
   // for Meteor 0.9 +
   Inject = Package['meteorhacks:inject-initial'].Inject;
-  var assets = '/packages/meteorhacks:zones/assets';
+
+  // meteor test-packages prefix the package with `loca-test:` 
+  // that's why we need this hack
+  if(process.env['METEOR_ENV'] == 'test') {
+    var assets = '/packages/local-test:meteorhacks:zones/assets';
+  } else {
+    var assets = '/packages/meteorhacks:zones/assets';
+  }
 }
 
 var HTML = [

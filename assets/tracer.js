@@ -242,6 +242,6 @@ Stacktrace.prototype.get = function() {
 };
 
 Stacktrace.prototype.stackFramesFilter = function(line) {
-  var filterRegExp = /\/packages\/(meteorhacks:zones|zones)\/assets\/|^Error$/;
+  var filterRegExp = /\/packages\/(meteorhacks:zones|zones|local-test:meteorhacks:zones)\/assets\/|^Error$/;
   return !line.match(filterRegExp);
 };

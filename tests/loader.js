@@ -1,11 +1,11 @@
 
 var SCRIPTS = [
-  '/packages/zones/assets/utils.js',
-  '/packages/zones/assets/before.js',
-  '/packages/zones/assets/zone.js',
-  '/packages/zones/assets/tracer.js',
-  '/packages/zones/assets/after.js',
-  '/packages/zones/assets/reporters.js',
+  '/packages/*/assets/utils.js',
+  '/packages/*/assets/before.js',
+  '/packages/*/assets/zone.js',
+  '/packages/*/assets/tracer.js',
+  '/packages/*/assets/after.js',
+  '/packages/*/assets/reporters.js',
 ];
 
 Tinytest.add(
@@ -13,12 +13,8 @@ Tinytest.add(
   function (test) {
     var scripts = document.getElementsByTagName('script');
     scripts = Array.prototype.slice.call(scripts);
-    scripts = scripts.slice(0, 6).map(getSrc);
+    scripts = scripts.slice(0, 6).map(getSrc).map(replacePackageName);
     test.equal(SCRIPTS, scripts);
-
-    function getSrc(el) {
-      return el.src.replace(location.origin, '');
-    }
   }
 );
 
@@ -53,7 +49,7 @@ Tinytest.addAsync(
             // append the html to a temporary container to search
             var scripts = $('<div>').append(html).find('script');
             scripts = Array.prototype.slice.call(scripts);
-            scripts = scripts.slice(0, 6).map(getSrc);
+            scripts = scripts.slice(0, 6).map(getSrc).map(replacePackageName);
             test.equal(SCRIPTS, scripts);
 
             // end the test
@@ -63,9 +59,13 @@ Tinytest.addAsync(
 
       });
     });
-
-    function getSrc(el) {
-      return el.src.replace(location.origin, '');
-    }
   }
 );
+
+function getSrc(el) {
+  return el.src.replace(location.origin, '');
+}
+
+function replacePackageName (path) {
+  return path.replace(/\/packages\/(.*)\/assets/, '/packages/*/assets');
+}
