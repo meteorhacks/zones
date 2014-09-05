@@ -176,7 +176,7 @@ function hijackComponentEvents(original) {
   var type = 'Template.event';
   return function (dict) {
     var self = this;
-    var name = this.__templateName || this.kind.split('_')[1];
+    var name = getTemplateName(this);
     for (var target in dict) {
       var handler = dict[target];
       if (typeof handler === 'function') {
@@ -193,6 +193,18 @@ function hijackComponentEvents(original) {
         zone.owner = ownerInfo;
         Zone._apply(handler, this, args);
       };
+    }
+
+    function getTemplateName(view) {
+      if(view.__templateName) {
+        // for Meteor 0.9.0 and older
+        return view.__templateName;
+      } else if(view.viewName) {
+        // for Meteor 0.9.1
+        return view.viewName.replace(/Template\./, '');
+      } else if(view.kind) {
+        return this.kind.split('_')[1];
+      }
     }
 
   }
