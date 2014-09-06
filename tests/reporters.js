@@ -63,3 +63,44 @@ Tinytest.add(
     }
   }
 );
+
+Tinytest.add(
+  'Reporters - getErrorMessage - an error object',
+  function (test) {
+    var message = "hello";
+    var err = new Error(message);
+    test.equal(Zone.Reporters.getErrorMessage(err), message);
+  }
+);
+
+Tinytest.add(
+  'Reporters - getErrorMessage - string',
+  function (test) {
+    var message = "hello";
+    test.equal(Zone.Reporters.getErrorMessage(message), message);
+  }
+);
+
+Tinytest.add(
+  'Reporters - getErrorMessage - object',
+  function (test) {
+    var message = "hello";
+    var err = {message: message};
+    test.equal(Zone.Reporters.getErrorMessage(err), message);
+  }
+);
+
+Tinytest.add(
+  'Reporters - getErrorMessage - number',
+  function (test) {
+    var number = 2;
+    test.equal(Zone.Reporters.getErrorMessage(number), number.toString());
+  }
+);
+
+Tinytest.add(
+  'Reporters - getErrorMessage - nothing',
+  function (test) {
+    test.equal(/Oops/.test(Zone.Reporters.getErrorMessage()), true);
+  }
+);

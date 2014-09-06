@@ -35,7 +35,8 @@ Zone.Reporters.longStackTrace = function (zone) {
   var prevZone;
   var totalAsyncTime = 0;
 
-  trace.push("Error: " + zone.erroredStack._e.message);
+  var errorMessage = Zone.Reporters.getErrorMessage(zone.erroredStack._e);
+  trace.push("Error: " + errorMessage);
   trace.push(zone.erroredStack.get());
 
   processZone();
@@ -67,5 +68,21 @@ Zone.Reporters.longStackTrace = function (zone) {
     }
   }
 }
+
+// why?
+// in JavaScript, you can throw anything, not just errors
+// developers abuse this. even popular HighCharts does that
+// That's why we need ugly solutions like this
+Zone.Reporters.getErrorMessage =  function(error) {
+  if(!error) {
+    return "Oops. sometimes went wrong with zones. There is no error."  
+  } else if(typeof error == 'string') {
+    return error;
+  } else if(error.message) {
+    return error.message;
+  } else {
+    return error.toString();
+  }
+};
 
 Zone.Reporters.add('longStackTrace', Zone.Reporters.longStackTrace);
