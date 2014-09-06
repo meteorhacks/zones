@@ -12,8 +12,22 @@ if(  window.JSON
   && Array.prototype.map
   && JSON.parse
   && JSON.stringify
-  && !Zone.disabled) {
+  && isBrowserAllowed()) {
   Zone.init();
   Zone.inited = true;
   restoreOriginals();
+}
+
+function isBrowserAllowed() {
+  var ieVersion = isIE();
+  if(!ieVersion) {
+    return true;
+  } else {
+    return ieVersion > 9;
+  }
+}
+
+function isIE () {
+  var myNav = navigator.userAgent.toLowerCase();
+  return (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
 }

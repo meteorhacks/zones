@@ -67,5 +67,5 @@ function getSrc(el) {
 }
 
 function replacePackageName (path) {
-  return path.replace(/\/packages\/(.*)\/assets/, '/packages/*/assets');
+  return path.replace(/(.*)\/packages\/(.*)\/assets/, '/packages/*/assets');
 }

@@ -6,8 +6,8 @@ if(Package['inject-initial']) {
   // for Meteor 0.9 +
   Inject = Package['meteorhacks:inject-initial'].Inject;
 
-  // meteor test-packages prefix the package with `loca-test:` 
-  // that's why we need this hack
+  // this is a trick to idnentify the test environment
+  // need to set this env var before running tests
   if(process.env['METEOR_ENV'] == 'test') {
     var assets = '/packages/local-test:meteorhacks:zones/assets';
   } else {
@@ -19,7 +19,6 @@ var HTML = [
   '<script src="'+assets+'/utils.js" type="text/javascript"></script>',
   '<script src="'+assets+'/before.js" type="text/javascript"></script>',
   '<script src="'+assets+'/zone.js" type="text/javascript"></script>',
-  '<!--[if lt IE 10 ]> <script>Zone.disabled=true</script> <![endif]-->',
   '<script src="'+assets+'/tracer.js" type="text/javascript"></script>',
   '<script src="'+assets+'/after.js" type="text/javascript"></script>',
   '<script src="'+assets+'/reporters.js" type="text/javascript"></script>',

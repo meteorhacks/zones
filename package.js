@@ -36,8 +36,6 @@ Package.on_test(function (api) {
     'tests/hijacks/subscriptions.js',
     'tests/hijacks/collections.js',
   ], 'client');
-
-  process.env['METEOR_ENV'] = 'test';
 });
 
 function addPackageFiles(api) {
