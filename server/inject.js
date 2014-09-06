@@ -1,7 +1,9 @@
+var format = Npm.require('util').format;
+
 // only Meteor < 0.9 has this tyoe of naming for packages
 if(Package['inject-initial']) {
   Inject = Package['inject-initial'].Inject;
-  var assets = '/packages/zones/assets';
+  var packageName = 'zones';
 } else {
   // for Meteor 0.9 +
   Inject = Package['meteorhacks:inject-initial'].Inject;
@@ -9,23 +11,26 @@ if(Package['inject-initial']) {
   // this is a trick to idnentify the test environment
   // need to set this env var before running tests
   if(process.env['METEOR_ENV'] == 'test') {
-    var assets = '/packages/local-test:meteorhacks:zones/assets';
+    var packageName = 'local-test:meteorhacks:zones';
   } else {
-    var assets = '/packages/meteorhacks:zones/assets';
+    var packageName = 'meteorhacks:zones';
   }
 }
 
-var HTML = [
-  '<script src="'+assets+'/utils.js" type="text/javascript"></script>',
-  '<script src="'+assets+'/before.js" type="text/javascript"></script>',
-  '<script src="'+assets+'/zone.js" type="text/javascript"></script>',
-  '<script src="'+assets+'/tracer.js" type="text/javascript"></script>',
-  '<script src="'+assets+'/after.js" type="text/javascript"></script>',
-  '<script src="'+assets+'/reporters.js" type="text/javascript"></script>',
+var fileList = [
+  'utils.js', 'before.js', 'zone.js', 'tracer.js',
+  'after.js', 'reporters.js'
 ];
 
+var cacheAvoider = (new Date).getTime();
+var finalHtml = '';
+fileList.forEach(function(file) {
+  var template = '<script type="text/javascript" src="/packages/%s/assets/%s?%s"></script>\n';
+  finalHtml += format(template, packageName, file, cacheAvoider);
+});
+
 Zones = {
-  html: HTML.join('\n'),
+  html: finalHtml,
   enabled: true,
 };
 

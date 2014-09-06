@@ -67,5 +67,7 @@ function getSrc(el) {
 }
 
 function replacePackageName (path) {
-  return path.replace(/(.*)\/packages\/(.*)\/assets/, '/packages/*/assets');
+  var withNoPackageName = path.replace(/(.*)\/packages\/(.*)\/assets/, '/packages/*/assets');
+  var withNoCacheAvoider = withNoPackageName.replace(/\?.*/, '');
+  return withNoCacheAvoider;
 }
