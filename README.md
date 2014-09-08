@@ -1,7 +1,5 @@
 [![](https://api.travis-ci.org/meteorhacks/zones.svg)](https://travis-ci.org/meteorhacks/zones)
-# zones
-
-### Zone.JS integration for meteor
+# Zone.JS integration for meteor
 
 With [Zone.JS](https://github.com/angular/zone.js) integration, we can follow Meteor's async execution path (in client) and identify more information which is not possible before.
 
