@@ -3,7 +3,7 @@
 
 With [Zone.JS](https://github.com/angular/zone.js) integration, we can follow Meteor's async execution path (in client) and identify more information which is not possible before.
 
-With zones, error tracking can be improved and it provided stack traces over async execution path.
+As a result of that, error tracking can be improved and it can be used to capture stack traces over the async execution path.
 
 [![Demo: Zone.JS with Meteor](https://i.cloudup.com/uD_z8km2Xz.png)](http://zones-example.meteor.com/)
 
