@@ -1,20 +1,27 @@
 [![](https://api.travis-ci.org/meteorhacks/zones.svg)](https://travis-ci.org/meteorhacks/zones)
 # zones
 
-### Zone.js integration for meteor
+### Zone.JS integration for meteor
 
-With Zone.JS integration, we can follow Meteor's async execution path (in client) and identify more information which is not possible before.
+With [Zone.JS](https://github.com/angular/zone.js) integration, we can follow Meteor's async execution path (in client) and identify more information which is not possible before.
 
-We've added **async stack-trace support** for client side errors with this package. See following demo:
+With zones, error tracking can be improved and it provided stack traces over async execution path.
 
 [![Demo: Zone.JS with Meteor](https://i.cloudup.com/uD_z8km2Xz.png)](http://zones-example.meteor.com/)
 
 ### Installation
+    
+    meteor add meteorhacks:zones
 
+    // for older Meteor version
     mrt add zones
 
 That's all you've to do :)
 
-For more information refer: [Client-Side Debugging For Meteor Apps](http://meteorhacks.com/client-side-debugging-for-meteor-apps.html)
+### Integration with Kadira
 
-> There are lot more things we can do with Zone.Js. We'll be releasing more goodies later on.
+If you've added zones into a Meteor application which is being monitored with Kadira, error tracking on client can be improved dramatically. See following error trace:
+
+![Kadira Error Tracking improved using Zones](https://cldup.com/-sxdlAvujw.png)
+
+For more information, visit Kadira's [error tracking docs](http://support.kadira.io/knowledgebase/articles/421158-client-side-error-tracking-with-zones).
