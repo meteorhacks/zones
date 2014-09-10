@@ -328,13 +328,16 @@ Zone.patchEventTargetMethods = function (obj, thing) {
       });
     }
 
-    arguments[1] = fn._bound = zone.bind(fn, false, ownerInfo);
+    fn._bound = fn._bound || {};
+    arguments[1] = fn._bound[eventName] = zone.bind(fn, false, ownerInfo);
     return Zone._apply(addDelegate, this, arguments);
   };
 
   var removeDelegate = obj.removeEventListener;
   obj.removeEventListener = function (eventName, fn) {
-    arguments[1] = arguments[1]._bound || arguments[1];
+    if(arguments[1]._bound && arguments[1]._bound[eventName]) {
+      arguments[1] = arguments[1]._bound[eventName];
+    }
     var result = Zone._apply(removeDelegate, this, arguments);
     zone.dequeueTask(fn);
     return result;
