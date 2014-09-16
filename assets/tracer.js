@@ -1,11 +1,11 @@
-nextZoneId = function() {
+var nextZoneId = function() {
   var zoneIds = 0;
   return function () {
     return zoneIds++;
   };
 }();
 
-extendZone = function(fields) {
+function extendZone(fields) {
   for(var key in fields) {
     Zone.prototype[key] = fields[key];
   }

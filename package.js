@@ -8,6 +8,10 @@ Package.describe({
   git: "https://github.com/meteorhacks/zones.git"
 });
 
+Npm.depends({
+  'connect': '2.26.1'
+});
+
 Package.on_use(function (api) {
   addPackageFiles(api);
   api.export('Zones', 'server');
@@ -50,23 +54,19 @@ function addPackageFiles(api) {
       // weak dependencies are not supported for packages before Meteor 0.9
       // need to check whether iron-router exists and use it only if it does
       api.use(['iron-router'], ['client', 'server']);
-    } 
+    }
   }
 
   api.add_files([
-    'assets/utils.js',
-    'assets/before.js',
     'assets/zone.js',
-    'assets/after.js',
-    'assets/reporters.js',
+    'assets/utils.js',
     'assets/tracer.js',
-  ], 'client', {isAsset: true});
+    'assets/reporters.js',
+    'assets/init.js',
+  ], 'server', {isAsset: true});
 
   api.add_files(['server/inject.js'], 'server');
-
-  api.add_files([
-    'client/hijack.js'
-  ], 'client');
+  api.add_files(['client/hijack.js'], 'client');
 
   api.use('underscore', 'client');
   api.use('ui', 'client');
@@ -75,6 +75,8 @@ function addPackageFiles(api) {
   api.use('session', 'client');
   api.use('livedata', 'client');
   api.use('minimongo', 'client');
+  api.use('webapp', 'server');
+  api.use('minifiers', 'server');
 }
 
 //--------------------------------------------------------------------------\\

@@ -15,7 +15,6 @@ if(  window.JSON
   && isBrowserAllowed()) {
   Zone.init();
   Zone.inited = true;
-  restoreOriginals();
 }
 
 function isBrowserAllowed() {
