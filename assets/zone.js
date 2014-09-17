@@ -180,39 +180,6 @@ Zone.patchSetClearFn = function (obj, fnNames) {
   });
 };
 
-
-Zone.patchSetFn = function (obj, fnNames) {
-  fnNames.forEach(function (name) {
-    var delegate = obj[name];
-
-    if (delegate) {
-      zone[name] = function (fn) {
-        arguments[0] = function () {
-          return Zone._apply(fn, this, arguments);
-        };
-        var args = Zone.bindArgumentsOnce(arguments);
-        return Zone._apply(delegate, obj, args);
-      };
-
-      obj[name] = function () {
-        return Zone._apply(zone[name], this, arguments);
-      };
-    }
-  });
-};
-
-Zone.patchPrototype = function (obj, fnNames, kind) {
-  fnNames.forEach(function (name) {
-    var delegate = obj[name];
-    if (delegate) {
-      obj[name] = function () {
-        var ownerInfo = {type: kind + "." + name};
-        return Zone._apply(delegate, this, Zone.bindArguments(arguments, ownerInfo));
-      };
-    }
-  });
-};
-
 Zone.bindArguments = function (args, ownerInfo) {
   for (var i = args.length - 1; i >= 0; i--) {
     if (typeof args[i] === 'function') {
@@ -230,19 +197,6 @@ Zone.bindArgumentsOnce = function (args, ownerInfo) {
     }
   }
   return args;
-};
-
-Zone.patchableFn = function (obj, fnNames) {
-  fnNames.forEach(function (name) {
-    var delegate = obj[name];
-    zone[name] = function () {
-      return Zone._apply(delegate, obj, arguments);
-    };
-
-    obj[name] = function () {
-      return Zone._apply(zone[name], this, arguments);
-    };
-  });
 };
 
 Zone.patchProperty = function (obj, prop) {
@@ -354,14 +308,6 @@ Zone.patch = function patch () {
     'immediate'
   ]);
 
-  // Zone.patchSetFn(window, [
-  //   'requestAnimationFrame',
-  //   'mozRequestAnimationFrame',
-  //   'webkitRequestAnimationFrame'
-  // ]);
-
-  // Zone.patchableFn(window, ['alert', 'prompt']);
-
   // patched properties depend on addEventListener, so this needs to come first
   if (window.EventTarget) {
     Zone.patchEventTargetMethods(window.EventTarget.prototype, 'EventTarget');
@@ -409,18 +355,6 @@ Zone.patch = function patch () {
     Zone.patchViaCapturingAllTheEvents();
     Zone.patchClass('XMLHttpRequest');
   }
-
-  // patch promises
-  // if (window.Promise) {
-  //   Zone.patchPrototype(Promise.prototype, [
-  //     'then',
-  //     'catch'
-  //   ], 'promise');
-  // }
-  // Zone.patchMutationObserverClass('MutationObserver');
-  // Zone.patchMutationObserverClass('WebKitMutationObserver');
-  // Zone.patchDefineProperty();
-  // Zone.patchRegisterElement();
 };
 
 //
@@ -509,148 +443,6 @@ Zone.patchClass = function (className) {
     }(prop));
   };
 };
-
-// wrap some native API on `window`
-Zone.patchMutationObserverClass = function (className) {
-  var OriginalClass = window[className];
-  if (!OriginalClass) {
-    return;
-  }
-  window[className] = function (fn) {
-    this._o = new OriginalClass(zone.bind(fn, true));
-  };
-
-  var instance = new OriginalClass(function () {});
-
-  window[className].prototype.disconnect = function () {
-    var result = Zone._apply(this._o.disconnect, this._o, arguments);
-    this._active && zone.dequeueTask();
-    this._active = false;
-    return result;
-  };
-
-  window[className].prototype.observe = function () {
-    if (!this._active) {
-      zone.enqueueTask();
-    }
-    this._active = true;
-    return Zone._apply(this._o.observe, this._o, arguments);
-  };
-
-  var prop;
-  for (prop in instance) {
-    (function (prop) {
-      if (typeof window[className].prototype !== undefined) {
-        return;
-      }
-      if (typeof instance[prop] === 'function') {
-        window[className].prototype[prop] = function () {
-          return Zone._apply(this._o[prop], this._o, arguments);
-        };
-      } else {
-        Object.defineProperty(window[className].prototype, prop, {
-          set: function (fn) {
-            if (typeof fn === 'function') {
-              this._o[prop] = zone.bind(fn);
-            } else {
-              this._o[prop] = fn;
-            }
-          },
-          get: function () {
-            return this._o[prop];
-          }
-        });
-      }
-    }(prop));
-  }
-};
-
-// might need similar for object.freeze
-// i regret nothing
-Zone.patchDefineProperty = function () {
-  var _defineProperty = Object.defineProperty;
-  var _getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  var _create = Object.create;
-
-  Object.defineProperty = function (obj, prop, desc) {
-    if (isUnconfigurable(obj, prop)) {
-      throw new TypeError('Cannot assign to read only property \'' + prop + '\' of ' + obj);
-    }
-    if (prop !== 'prototype') {
-      desc = rewriteDescriptor(obj, prop, desc);
-    }
-    return _defineProperty(obj, prop, desc);
-  };
-
-  Object.defineProperties = function (obj, props) {
-    Object.keys(props).forEach(function (prop) {
-      Object.defineProperty(obj, prop, props[prop]);
-    });
-    return obj;
-  };
-
-  Object.create = function (obj, proto) {
-    if (typeof proto === 'object') {
-      Object.keys(proto).forEach(function (prop) {
-        proto[prop] = rewriteDescriptor(obj, prop, proto[prop]);
-      });
-    }
-    return _create(obj, proto);
-  };
-
-  Object.getOwnPropertyDescriptor = function (obj, prop) {
-    var desc = _getOwnPropertyDescriptor(obj, prop);
-    if (isUnconfigurable(obj, prop)) {
-      desc.configurable = false;
-    }
-    return desc;
-  };
-
-  Zone._redefineProperty = function (obj, prop, desc) {
-    desc = rewriteDescriptor(obj, prop, desc);
-    return _defineProperty(obj, prop, desc);
-  };
-
-  function isUnconfigurable (obj, prop) {
-    return obj && obj.__unconfigurables && obj.__unconfigurables[prop];
-  }
-
-  function rewriteDescriptor (obj, prop, desc) {
-    desc.configurable = true;
-    if (!desc.configurable) {
-      if (!obj.__unconfigurables) {
-        _defineProperty(obj, '__unconfigurables', { writable: true, value: {} });
-      }
-      obj.__unconfigurables[prop] = true;
-    }
-    return desc;
-  }
-};
-
-Zone.patchRegisterElement = function () {
-  if (!('registerElement' in document)) {
-    return;
-  }
-  var _registerElement = document.registerElement;
-  var callbacks = [
-    'createdCallback',
-    'attachedCallback',
-    'detachedCallback',
-    'attributeChangedCallback'
-  ];
-  document.registerElement = function (name, opts) {
-    callbacks.forEach(function (callback) {
-      if (opts.prototype[callback]) {
-        var descriptor = Object.getOwnPropertyDescriptor(opts.prototype, callback);
-        if (descriptor && descriptor.value) {
-          descriptor.value = zone.bind(descriptor.value || opts.prototype[callback]);
-          Zone._redefineProperty(opts.prototype, callback, descriptor);
-        }
-      }
-    });
-    return Zone._apply(_registerElement, document, [name, opts]);
-  };
-}
 
 Zone.eventNames = 'copy cut paste abort blur focus canplay canplaythrough change click contextmenu dblclick drag dragend dragenter dragleave dragover dragstart drop durationchange emptied ended input invalid keydown keypress keyup load loadeddata loadedmetadata loadstart mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup pause play playing progress ratechange reset scroll seeked seeking select show stalled submit suspend timeupdate volumechange waiting mozfullscreenchange mozfullscreenerror mozpointerlockchange mozpointerlockerror error webglcontextrestored webglcontextlost webglcontextcreationerror'.split(' ');
 
