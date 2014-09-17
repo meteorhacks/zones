@@ -4,7 +4,7 @@ var path = Npm.require('path');
 Package.describe({
   name: 'meteorhacks:zones',
   summary: 'Zone.Js integration for meteor',
-  version: "1.2.1",
+  version: "1.2.2",
   git: "https://github.com/meteorhacks/zones.git"
 });
 
@@ -41,7 +41,7 @@ Package.on_test(function (api) {
 function addPackageFiles(api) {
   // Add iron router only if it exists
   if(api.versionsFrom) {
-    api.versionsFrom('METEOR@0.9.0');
+    api.versionsFrom('METEOR@0.9.2.1');
     api.use('meteorhacks:inject-initial@1.0.0', ['server']);
     api.use(['iron:router@0.9.0'], ['client', 'server'], {weak: true});
   } else {
