@@ -351,13 +351,13 @@ Zone.patch = function patch () {
     'immediate'
   ]);
 
-  Zone.patchSetFn(window, [
-    'requestAnimationFrame',
-    'mozRequestAnimationFrame',
-    'webkitRequestAnimationFrame'
-  ]);
+  // Zone.patchSetFn(window, [
+  //   'requestAnimationFrame',
+  //   'mozRequestAnimationFrame',
+  //   'webkitRequestAnimationFrame'
+  // ]);
 
-  Zone.patchableFn(window, ['alert', 'prompt']);
+  // Zone.patchableFn(window, ['alert', 'prompt']);
 
   // patched properties depend on addEventListener, so this needs to come first
   if (window.EventTarget) {
@@ -408,16 +408,16 @@ Zone.patch = function patch () {
   }
 
   // patch promises
-  if (window.Promise) {
-    Zone.patchPrototype(Promise.prototype, [
-      'then',
-      'catch'
-    ], 'promise');
-  }
-  Zone.patchMutationObserverClass('MutationObserver');
-  Zone.patchMutationObserverClass('WebKitMutationObserver');
-  Zone.patchDefineProperty();
-  Zone.patchRegisterElement();
+  // if (window.Promise) {
+  //   Zone.patchPrototype(Promise.prototype, [
+  //     'then',
+  //     'catch'
+  //   ], 'promise');
+  // }
+  // Zone.patchMutationObserverClass('MutationObserver');
+  // Zone.patchMutationObserverClass('WebKitMutationObserver');
+  // Zone.patchDefineProperty();
+  // Zone.patchRegisterElement();
 };
 
 //
