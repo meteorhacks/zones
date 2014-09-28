@@ -203,7 +203,7 @@ function hijackComponentEvents(original) {
         // for Meteor 0.9.1
         return view.viewName.replace(/Template\./, '');
       } else if(view.kind) {
-        return this.kind.split('_')[1];
+        return view.kind.split('_')[1];
       }
     }
 
