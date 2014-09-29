@@ -309,8 +309,10 @@ Zone.patchEventTargetMethods = function (obj, thing) {
     function getName(element) {
       if(element === window) {
         return 'window';
-      } else {
+      } else if(element) {
         return element.localName || element.nodeName;
+      } else {
+        return "no element";
       }
     }
 
