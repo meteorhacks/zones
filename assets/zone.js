@@ -322,7 +322,8 @@ Zone.patchEventTargetMethods = function (obj, thing) {
       name: getName(this)
     };
 
-    if(this.attributes) {
+    // `this` can be undefined
+    if(this && this.attributes) {
       ownerInfo.attributes = {};
       var attributesArray = Array.prototype.slice.call(this.attributes);
       attributesArray.forEach(function (attr) {
