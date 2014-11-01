@@ -1,4 +1,4 @@
-
+var Zone = window.Zone;
 var reporters = {};
 
 Zone.Reporters = {};

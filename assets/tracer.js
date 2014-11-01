@@ -1,3 +1,5 @@
+var Zone = window.Zone;
+
 nextZoneId = function() {
   var zoneIds = 0;
   return function () {
