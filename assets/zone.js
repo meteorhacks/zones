@@ -251,6 +251,11 @@ Zone.patchProperty = function (obj, prop) {
     configurable: true
   };
 
+  if(!desc.configurable) {
+    // cannot change if it's not configurable
+    return;
+  }
+
   // A property descriptor cannot have getter/setter and be writable
   // deleting the writable and value properties avoids this error:
   //
