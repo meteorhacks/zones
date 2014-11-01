@@ -85,19 +85,6 @@ Session.set = hijackSessionSet(Session.set, 'Session.set');
  */
 Deps.flush = hijackDepsFlush(Deps.flush, 'Deps.flush');
 
-/**
- * Hijack IronRouter if it's available
- * Add iron router specific events
- */
- if(Package['iron-router']){
-   var Router = Package['iron-router'].Router;
-   var RouteController = Package['iron-router'].RouteController;
-   Router = hijackRouterGlobalHooks(Router, 'Router.global');
-   Router.configure = hijackRouterConfigure(Router.configure, 'Router.configure');
-   Router.route = hijackRouterOptions(Router.route, 'Router.route');
-   RouteController.extend = hijackRouteController(RouteController.extend, 'RouteController.extend');
- }
-
 //--------------------------------------------------------------------------\\
 
 function getConnectionProto() {
