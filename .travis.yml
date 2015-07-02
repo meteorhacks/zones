@@ -4,5 +4,5 @@ node_js:
 before_install:
   - "curl -L http://git.io/ejPSng | /bin/sh"
 env:
-  - METEOR_ENV=test TEST_COMMAND=meteor METEOR_RELEASE=0.9.2.1
+  - METEOR_ENV=test TEST_COMMAND=meteor METEOR_RELEASE=1.1.0.2
   - TEST_COMMAND=mrt METEOR_RELEASE=0.8.3
