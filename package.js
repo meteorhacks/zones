@@ -4,7 +4,7 @@ var path = Npm.require('path');
 Package.describe({
   name: 'meteorhacks:zones',
   summary: 'Zone.Js integration for meteor',
-  version: "1.5.0",
+  version: "1.6.0",
   git: "https://github.com/meteorhacks/zones.git"
 });
 
