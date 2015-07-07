@@ -53,11 +53,11 @@ extendZone({
     // that's why we can access ancesstor properties
     // but we are deleting eventMap just after zone ran
     // so, we need to create eventMap explicitely to stay it in the current zone
-    zone.eventMap = zone.eventMap;
+    zone.eventMap = zone.eventMap || {};
 
     // infoMap is just like eventMap, but it deepCopy all the info
     // so only previous zone's info will be exists
-    zone.infoMap = zone.infoMap;
+    zone.infoMap = zone.infoMap || {};
     if(zone.parent && zone.parent._info) {
       var parentInfo = zone.parent._info;
       zone.infoMap[zone.parent.id] = {};
