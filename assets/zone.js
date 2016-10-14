@@ -944,7 +944,7 @@ function patchEventTargetMethods(obj, thing) {
 
   var removeDelegate = obj.removeEventListener;
   obj.removeEventListener = function (eventName, fn) {
-    if(arguments[1]._bound && arguments[1]._bound[eventName]) {
+    if(arguments[1] && arguments[1]._bound && arguments[1]._bound[eventName]) {
       var _bound = arguments[1]._bound;
       arguments[1] = _bound[eventName];
       delete _bound[eventName];
