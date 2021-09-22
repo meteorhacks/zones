@@ -512,6 +512,15 @@ function patchClass(className) {
     return this._o.observe.apply(this._o, arguments);
   };
 
+  global[className].prototype.takeRecords = function () {
+    if (!this._active) {
+      this._creationZone.enqueueTask();
+      this._active = true;
+    }
+    return this._o.takeRecords.apply(this._o, arguments);
+  };
+
+
   var prop;
   for (prop in instance) {
     (function (prop) {
