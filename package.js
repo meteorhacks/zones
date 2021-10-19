@@ -46,14 +46,14 @@ function addPackageFiles(api) {
     api.use('inject-initial');
   }
 
-  api.addFiles([
+  api.addAssets([
     'assets/utils.js',
     'assets/before.js',
     'assets/zone.js',
     'assets/after.js',
     'assets/reporters.js',
     'assets/tracer.js',
-  ], 'client', {isAsset: true});
+  ], 'client');
 
   api.addFiles(['server/inject.js'], 'server');
 
