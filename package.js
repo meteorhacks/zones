@@ -8,12 +8,12 @@ Package.describe({
   git: "https://github.com/meteorhacks/zones.git"
 });
 
-Package.on_use(function (api) {
+Package.onUse(function (api) {
   addPackageFiles(api);
   api.export('Zones', 'server');
 });
 
-Package.on_test(function (api) {
+Package.onTest(function (api) {
   addPackageFiles(api);
 
   api.use([
@@ -21,15 +21,15 @@ Package.on_test(function (api) {
     'test-helpers',
   ], 'client');
 
-  api.add_files([
+  api.addFiles([
     'tests/_both.js'
   ], ['client', 'server']);
 
-  api.add_files([
+  api.addFiles([
     'tests/_server.js'
   ], 'server');
 
-  api.add_files([
+  api.addFiles([
     'tests/loader.js',
     'tests/reporters.js',
     'tests/hijacks/methods.js',
@@ -46,18 +46,18 @@ function addPackageFiles(api) {
     api.use('inject-initial');
   }
 
-  api.add_files([
+  api.addAssets([
     'assets/utils.js',
     'assets/before.js',
     'assets/zone.js',
     'assets/after.js',
     'assets/reporters.js',
     'assets/tracer.js',
-  ], 'client', {isAsset: true});
+  ], 'client');
 
-  api.add_files(['server/inject.js'], 'server');
+  api.addFiles(['server/inject.js'], 'server');
 
-  api.add_files([
+  api.addFiles([
     'client/hijack.js'
   ], 'client');
 

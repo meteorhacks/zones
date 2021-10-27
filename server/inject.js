@@ -24,9 +24,15 @@ var fileList = [
 
 var cacheAvoider = (new Date).getTime();
 var finalHtml = '';
+
+var prefixURL = "";
+if (process.env.CDN_URL) {
+  prefixURL = process.env.CDN_URL;
+}
+
 fileList.forEach(function(file) {
-  var template = '<script type="text/javascript" src="/packages/%s/assets/%s?%s"></script>\n';
-  finalHtml += format(template, packageName, file, cacheAvoider);
+  var template = '<script type="text/javascript" src="%s/packages/%s/assets/%s?%s"></script>\n';
+  finalHtml += format(template, prefixURL, packageName, file, cacheAvoider);
 });
 
 Zones = {
